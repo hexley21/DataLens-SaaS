@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import CompanyEntity from "../users/CompanyEntity.js";
+import PlanEntity from "./PlanEntity.js";
 
 
 @Entity({
@@ -8,12 +10,12 @@ import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 export default class BillingRecordEntity {
     
     constructor(company_id: string, plan_id:  string, plan_start?: Date, user_count?: number, files_uploaded?: number) {
-        this.company_id = company_id
-        this.plan_id = plan_id
+        this.company_id = company_id;
+        this.plan_id = plan_id;
         
-        if (plan_start) this.plan_start = plan_start
-        if (user_count) this.user_count = user_count
-        if (files_uploaded) this.files_uploaded = files_uploaded
+        if (plan_start) this.plan_start = plan_start;
+        if (user_count) this.user_count = user_count;
+        if (files_uploaded) this.files_uploaded = files_uploaded;
     }
 
     
@@ -71,4 +73,10 @@ export default class BillingRecordEntity {
     })
     public files_uploaded!: number;
 
+
+    @ManyToOne(() => PlanEntity, (plan) => plan.billing_records)
+    public plan?: PlanEntity;
+
+    @ManyToOne(() => CompanyEntity, (company) => company.billing_records)
+    public company?: CompanyEntity;
 }

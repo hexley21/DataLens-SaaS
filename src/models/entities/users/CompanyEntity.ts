@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import IndustriesEntity from "../IndustriesEntity.js";
 import EmployeeEntity from "./EmployeeEntity.js";
+import BillingRecordEntity from "../subscription/BillingRecordEntity.js";
 
 
 @Entity({
@@ -76,5 +77,8 @@ export default class CompanyEntity {
 
     @OneToMany(() => EmployeeEntity, (employee) => employee.company)
     public employees?: EmployeeEntity[];
+
+    @OneToMany(() => BillingRecordEntity, (billing_record) => billing_record.company)
+    public billing_records?: BillingRecordEntity[];
 
 }

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, CreateDateColumn } from "typeorm";
 import Role from "../../../common/types/Role.js";
 import AuthEntity from "./AuthEntity.js";
 
@@ -34,7 +34,7 @@ export default class UserEntity {
     })
     public email!: string;
 
-    @Column({
+    @CreateDateColumn({
         type: "date",
         name: "registration_date",
         nullable: false,
