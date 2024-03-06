@@ -1,6 +1,9 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+
 import IndustriesEntity from "../IndustriesEntity.js";
+
 import EmployeeEntity from "./EmployeeEntity.js";
+
 import BillingRecordEntity from "../subscription/BillingRecordEntity.js";
 
 
@@ -40,7 +43,7 @@ export default class CompanyEntity {
     public current_billing_id!: string;
 
     @Column({
-        type: "string",
+        type: "varchar",
         name: "company_name",
         nullable: false
     })

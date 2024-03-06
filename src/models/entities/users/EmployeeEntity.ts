@@ -1,5 +1,7 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+
 import UserEntity from "./UserEntity.js";
+
 import CompanyEntity from "./CompanyEntity.js";
 
 
@@ -41,6 +43,6 @@ export default class EmployeeEntity {
     public user?: UserEntity
 
     @ManyToOne(() => CompanyEntity, (company) => company.employees)
-    public company?: CompanyEntity;
+    public company?: Relation<CompanyEntity>;
 
 }

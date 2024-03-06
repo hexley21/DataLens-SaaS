@@ -1,4 +1,5 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
+
 import BillingRecordEntity from "./BillingRecordEntity.js";
 
 
@@ -66,6 +67,5 @@ export default class PlanEntity {
 
 
     @OneToMany(() => BillingRecordEntity, (billing_record) => billing_record.plan)
-    public billing_records?: BillingRecordEntity[]
-
+    public billing_records?: Relation<BillingRecordEntity[]>
 }

@@ -1,6 +1,8 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
-import CompanyEntity from "../users/CompanyEntity.js";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+
 import PlanEntity from "./PlanEntity.js";
+
+import CompanyEntity from "../users/CompanyEntity.js";
 
 
 @Entity({
@@ -78,5 +80,6 @@ export default class BillingRecordEntity {
     public plan?: PlanEntity;
 
     @ManyToOne(() => CompanyEntity, (company) => company.billing_records)
-    public company?: CompanyEntity;
+    public company?: Relation<CompanyEntity>;
+
 }
