@@ -1,8 +1,6 @@
 import express, { Request, Response, NextFunction } from "express";
 import createHttpError, { HttpError } from "http-errors";
 import cookieParser from "cookie-parser";
-import cors from "cors";
-import logger from "morgan";
 
 const app = express();
 
@@ -10,9 +8,7 @@ const app = express();
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-app.use(logger("dev"));
 app.use(cookieParser());
-app.use(cors());
 
 // routes
 // app.use("/api", );

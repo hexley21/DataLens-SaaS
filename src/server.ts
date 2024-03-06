@@ -1,17 +1,20 @@
-import http from "http"
+import "reflect-metadata";
 
+import ServerHandler from "./common/handlers/ServerHandler.js";
+
+import AppDataSource from "./data/AppDataSource.js";
 import app from "./app.js";
-import { error } from "console";
 
 
-const port = process.env.PORT!;
+new ServerHandler(app, AppDataSource, normalizePort(process.env.PORT!)).initialize();
 
-app.set("port", port);
 
-const server = http.createServer(app);
+function normalizePort(val: string): number | never{
+    const port = parseInt(val);
 
-server.listen(port);
+    if (port >= 0) {
+        return port;
+    }
 
-server.on("error", (err: Error) => console.error(error));
-server.on("listening", () => console.log("Express server started on port %d", port));
-process.on("SIGINT", () => server.close());
+    throw new Error("Port must be an integer greater or equal than 0");
+}
