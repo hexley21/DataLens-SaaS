@@ -3,8 +3,8 @@ import AppDataSource from "../data/AppDataSource.js";
 import IController from "../common/base/IController.js";
 
 import CompanyEntity from "../models/entities/users/CompanyEntity.js";
-import CountriesEnum from "../common/base/enum/CountriesEnum.js";
-import IndustriesEnum from "../common/base/enum/IndustriesEnum.js";
+import CountriesEnum from "../common/enum/CountriesEnum.js";
+import IndustriesEnum from "../common/enum/IndustriesEnum.js";
 
 
 class CompanyController extends IController<CompanyEntity> {

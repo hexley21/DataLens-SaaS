@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, CreateDat
 
 import AuthEntity from "./AuthEntity.js";
 
-import RoleEnum from "../../../common/base/enum/RoleEnum.js";
+import RoleEnum from "../../../common/enum/RoleEnum.js";
 
 
 @Entity({

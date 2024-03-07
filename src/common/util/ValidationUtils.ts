@@ -1,5 +1,5 @@
-import CountriesEnum from "../base/enum/CountriesEnum.js"
-import IndustriesEnum from "../base/enum/IndustriesEnum.js"
+import CountriesEnum from "../enum/CountriesEnum.js"
+import IndustriesEnum from "../enum/IndustriesEnum.js"
 
 export function isEmailValid(email?: string): boolean {
     // @ts-ignore

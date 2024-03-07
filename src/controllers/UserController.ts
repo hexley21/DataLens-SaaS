@@ -3,7 +3,7 @@ import AppDataSource from "../data/AppDataSource.js";
 import IController from "../common/base/IController.js";
 
 import UserEntity from "../models/entities/users/UserEntity.js";
-import RoleEnum from "../common/base/enum/RoleEnum.js";
+import RoleEnum from "../common/enum/RoleEnum.js";
 
 import { signObjToken } from "../common/util/JwtUtils.js";
 

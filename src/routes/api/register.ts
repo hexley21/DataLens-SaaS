@@ -4,7 +4,7 @@ import Router from "express-promise-router";
 import createHttpError from "http-errors";
 
 import UserController from "../../controllers/UserController.js";
-import RoleEnum from "../../common/base/enum/RoleEnum.js";
+import RoleEnum from "../../common/enum/RoleEnum.js";
 import { isEmailValid, isCountryValid, isIndustryValid, isCompanyNameValid } from "../../common/util/ValidationUtils.js";
 import AuthController from "../../controllers/AuthController.js";
 import CompanyController from "../../controllers/CompanyController.js";

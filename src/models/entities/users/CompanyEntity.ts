@@ -6,8 +6,8 @@ import EmployeeEntity from "./EmployeeEntity.js";
 
 import BillingRecordEntity from "../subscription/BillingRecordEntity.js";
 
-import IndustriesEnum from "../../../common/base/enum/IndustriesEnum.js";
-import CountriesEnum from "../../../common/base/enum/CountriesEnum.js";
+import IndustriesEnum from "../../../common/enum/IndustriesEnum.js";
+import CountriesEnum from "../../../common/enum/CountriesEnum.js";
 
 
 @Entity({
