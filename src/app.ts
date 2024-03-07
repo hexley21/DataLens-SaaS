@@ -2,6 +2,9 @@ import express, { Request, Response, NextFunction } from "express";
 import createHttpError, { HttpError } from "http-errors";
 import cookieParser from "cookie-parser";
 
+import ApiRoutes from "./routes/ApiRoutes.js";
+
+
 const app = express();
 
 // middlewares
@@ -11,7 +14,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // routes
-// app.use("/api", );
+app.use("/api", ApiRoutes);
 
 // errors
 app.use((req: Request, res: Response, next: NextFunction) => {
