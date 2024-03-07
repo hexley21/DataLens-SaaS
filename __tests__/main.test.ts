@@ -1,19 +1,24 @@
-import {describe, expect, test} from "@jest/globals";
-import TestDataSource from "./fake/TestDataSource";
+import AppDataSource from "../src/data/AppDataSource.js";
+
+import clearDb from "./test-util/DbUtils.js";
 
 
 beforeAll(async () => {
-    await TestDataSource.initialize();
+    await AppDataSource.initialize();
 });
 
-
-describe("database test", () => {
-    test("database is initialized", () => {
-        expect(TestDataSource.connection.isInitialized).toBe(true);
-    });
-
-    test("database is closed", async () => {
-        await TestDataSource.close()
-        expect(TestDataSource.connection.isInitialized).toBe(false)
-    });
+afterAll(async () => {
+    await AppDataSource.close()
 });
+
+afterEach(async () => {
+    await clearDb()
+});
+
+it("database is initialized", () => {
+    expect(AppDataSource.connection.isInitialized).toBe(true);
+});
+
+it("environment is valid", () => {
+    expect(process.env.DB_NAME).toBe("datalens_test")
+})

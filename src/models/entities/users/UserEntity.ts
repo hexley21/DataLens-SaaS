@@ -1,6 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, CreateDateColumn } from "typeorm";
-import Role from "../../../common/types/Role.js";
+
 import AuthEntity from "./AuthEntity.js";
+
+import RoleEnum from "../../../common/base/enum/RoleEnum.js";
 
 
 @Entity({
@@ -9,7 +11,7 @@ import AuthEntity from "./AuthEntity.js";
 })
 export default class UserEntity {
 
-    constructor(auth_id: string, email: string, role: Role) {
+    constructor(auth_id: string, email: string, role: RoleEnum) {
         this.auth_id = auth_id;
         this.email = email;
         this.role = role;
@@ -44,10 +46,10 @@ export default class UserEntity {
 
     @Column({
         type: "enum",
-        enum: Role,
+        enum: RoleEnum,
         nullable: false
     })
-    public role!: Role;
+    public role!: RoleEnum;
 
 
     @OneToOne(() => AuthEntity)

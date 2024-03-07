@@ -7,7 +7,7 @@
 ```sql
 CREATE TABLE users.user(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-    auth_id UUID REFERENCES users.auth(id) ON DELETE RESTRICT NOT NULL,
+    auth_id UUID REFERENCES users.auth(id) ON DELETE RESTRICT,
     email VARCHAR(255) CHECK(EMAIL ~ '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{3,}))$') NOT NULL,
     role ROLE NOT NULL,
     registration_date DATE DEFAULT NOW() NOT NULL,
@@ -20,8 +20,8 @@ CREATE TABLE users.user(
 ```sql
 CREATE TABLE users.auth(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-    hash VARCHAR(64) NOT NULL,
-    salt VARCHAR(64) NOT NULL
+    hash VARCHAR(64) NOT NULL CHECK(LENGTH(hash) = 64),
+    salt VARCHAR(64) NOT NULL CHECK(LENGTH(salt) = 64)
 );
 ```
 

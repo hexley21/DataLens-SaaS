@@ -6,6 +6,9 @@ import EmployeeEntity from "./EmployeeEntity.js";
 
 import BillingRecordEntity from "../subscription/BillingRecordEntity.js";
 
+import IndustriesEnum from "../../../common/base/enum/IndustriesEnum.js";
+import CountriesEnum from "../../../common/base/enum/CountriesEnum.js";
+
 
 @Entity({
     schema: "users",
@@ -13,14 +16,14 @@ import BillingRecordEntity from "../subscription/BillingRecordEntity.js";
 })
 export default class CompanyEntity {
 
-    constructor(user_id: string, current_billing_id: string, company_name: string, industry: string, country: string, is_active?: boolean) {
+    constructor(user_id: string, company_name: string, industry: IndustriesEnum, country: CountriesEnum, is_active?: boolean, current_billing_id?: string) {
         this.user_id = user_id;
-        this.current_billing_id = current_billing_id;
         this.company_name = company_name;
-        this.industry = this.industry;
-        this.country = this.country;
+        this.industry = industry;
+        this.country = country;
         
         if (is_active) this.is_active = is_active;
+        if (current_billing_id) this.current_billing_id = current_billing_id;
     }
 
 
@@ -38,9 +41,9 @@ export default class CompanyEntity {
     @Column({
         type: "uuid",
         name: "current_billing_id",
-        nullable: false
+        nullable: true
     })
-    public current_billing_id!: string;
+    public current_billing_id?: string;
 
     @Column({
         type: "varchar",
@@ -54,14 +57,14 @@ export default class CompanyEntity {
         name: "industry",
         nullable: false
     })
-    public industry!: string;
+    public industry!: IndustriesEnum;
 
     @Column({
         type: "varchar",
         name: "country",
         nullable: true
     })
-    public country?: string;
+    public country?: CountriesEnum;    
 
     @Column({
         type: "boolean",
@@ -75,7 +78,7 @@ export default class CompanyEntity {
         name: "industry",
         referencedColumnName: "id"
     })
-    public industry_obj?: IndustriesEntity;
+    public industry_obj?: string;
 
 
     @OneToMany(() => EmployeeEntity, (employee) => employee.company)

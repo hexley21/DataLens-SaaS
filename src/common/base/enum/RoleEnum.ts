@@ -1,6 +1,6 @@
-enum Role {
+enum RoleEnum {
     COMPANY = "COMPANY",
     EMPLOYEE = "EMPLOYEE"
 };
 
-export default Role;
+export default RoleEnum;

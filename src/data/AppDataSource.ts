@@ -20,6 +20,7 @@ export default new DbHandler({
     password: process.env.DB_PASS!,
     database: process.env.DB_NAME!,
     synchronize: false,
+    uuidExtension: 'uuid-ossp',
     logging: true,
     entities: [ IndustriesEntity, CountriesEntity, UserEntity, AuthEntity, CompanyEntity, EmployeeEntity, BillingRecordEntity, PlanEntity ],
     subscribers: [],
