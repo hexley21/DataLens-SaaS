@@ -43,6 +43,7 @@ export default class EmployeeEntity {
     public user?: UserEntity
 
     @ManyToOne(() => CompanyEntity, (company) => company.employees)
+    @JoinColumn({ name: "company_id" })
     public company?: Relation<CompanyEntity>;
 
 }

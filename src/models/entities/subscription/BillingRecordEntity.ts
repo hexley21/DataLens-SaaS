@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Relation } from "typeorm";
 
 import PlanEntity from "./PlanEntity.js";
 
 import CompanyEntity from "../users/CompanyEntity.js";
+import TiersEnum from "../../../common/enum/TiersEnum.js";
 
 
 @Entity({
@@ -11,7 +12,7 @@ import CompanyEntity from "../users/CompanyEntity.js";
 })
 export default class BillingRecordEntity {
     
-    constructor(company_id: string, plan_id:  string, plan_start?: Date, user_count?: number, files_uploaded?: number) {
+    constructor(company_id: string, plan_id: TiersEnum, plan_start?: Date, user_count?: number, files_uploaded?: number) {
         this.company_id = company_id;
         this.plan_id = plan_id;
         
@@ -32,11 +33,11 @@ export default class BillingRecordEntity {
     public company_id!: string;
 
     @Column({
-        type: "varchar",
+        type: "integer",
         name: "plan_id",
         nullable: false
     })
-    public plan_id!: string;
+    public plan_id!: number;
 
     @Column({
         type: "date",
@@ -77,9 +78,11 @@ export default class BillingRecordEntity {
 
 
     @ManyToOne(() => PlanEntity, (plan) => plan.billing_records)
+    @JoinColumn({ name: "plan_id" })
     public plan?: PlanEntity;
 
     @ManyToOne(() => CompanyEntity, (company) => company.billing_records)
+    @JoinColumn({ name: "company_id" })
     public company?: Relation<CompanyEntity>;
 
 }

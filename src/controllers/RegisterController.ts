@@ -19,7 +19,6 @@ import CompanyControllerInstance from "./CompanyController.js";
 import BasicEmailService from "../services/BasicEmailService.js";
 import createHttpError from "http-errors";
 import { QueryFailedError } from "typeorm";
-import { signObjToken } from "../common/util/JwtUtils.js";
 
 
 export class RegisterController extends IController<UserEntity> {
