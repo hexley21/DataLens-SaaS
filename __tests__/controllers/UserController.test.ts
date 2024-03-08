@@ -4,7 +4,7 @@ import AuthController from "../../src//controllers/AuthController.js";
 
 import clearDb from "../test-util/DbUtils.js";
 import UserController from "../../src/controllers/UserController.js";
-import RoleEnum from "../../src/common/base/enum/RoleEnum.js";
+import RoleEnum from "../../src/common/enum/RoleEnum.js"
 
 
 const password = "123";

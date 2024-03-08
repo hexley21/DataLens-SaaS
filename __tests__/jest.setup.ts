@@ -1,3 +1,3 @@
 import dotenv from "dotenv";
 
-dotenv.config({ path: "./jest.env" });
+dotenv.config({ path: "./__tests__/.env" });

@@ -1,6 +1,6 @@
 import AppDataSource from "../../src/data/AppDataSource.js";
 
-import RoleEnum from "../../src/common/base/enum/RoleEnum.js";
+import RoleEnum from "../../src/common/enum/RoleEnum.js";
 import UserEntity from "../../src/models/entities/users/UserEntity.js";
 
 import AuthController from "../../src/controllers/AuthController.js";
