@@ -1,4 +1,4 @@
-import IEmailRepository from "../common/base/IEmailRepository.js";
+import IEmailService from "../common/base/IEmailService.js";
 
 import { createTransport } from "nodemailer";
 
@@ -12,7 +12,7 @@ const transporter = createTransport({
     }
 });
 
-export class BasicEmailRepo implements IEmailRepository {
+export class BasicEmailService implements IEmailService {
 
     public sendEmail(to: string, subject: string, text: string, from?: string): void {
         transporter.sendMail({
@@ -27,4 +27,4 @@ export class BasicEmailRepo implements IEmailRepository {
 
 };
 
-export default new BasicEmailRepo()
+export default new BasicEmailService()

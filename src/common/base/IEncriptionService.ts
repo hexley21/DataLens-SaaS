@@ -1,4 +1,4 @@
-export default interface IEncriptionRepository {
+export default interface IEncriptionService {
     saltLength: number
     
 

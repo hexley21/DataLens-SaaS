@@ -1,4 +1,3 @@
-import DbHandler from "../common/handlers/DbHandler.js";
 
 import CountriesEntity from "../models/entities/CountriesEntity.js";
 import IndustriesEntity from "../models/entities/IndustriesEntity.js";
@@ -10,9 +9,10 @@ import EmployeeEntity from "../models/entities/users/EmployeeEntity.js";
 
 import BillingRecordEntity from "../models/entities/subscription/BillingRecordEntity.js";
 import PlanEntity from "../models/entities/subscription/PlanEntity.js";
+import { DataSource } from "typeorm";
 
 
-export default new DbHandler({
+export default new DataSource({
     type: "postgres",
     host: "localhost",
     port: parseInt(process.env.DB_PORT!),

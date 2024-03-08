@@ -20,7 +20,6 @@ export function isIndustryValid(industry?: string): boolean {
     return isEnumValid((industry) as IndustriesEnum, IndustriesEnum)
 }
 
-
 export function isEnumValid(value: any, enumObj: object): boolean {
     if (!value) return false;
     return Object.values(enumObj).includes(value);

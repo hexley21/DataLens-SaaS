@@ -1,12 +1,12 @@
 import "reflect-metadata";
 
-import ServerHandler from "./common/handlers/ServerHandler.js";
+import ServerManager from "./common/managers/ServerManager.js";
 
 import AppDataSource from "./data/AppDataSource.js";
 import app from "./app.js";
 
 
-new ServerHandler(app, AppDataSource, normalizePort(process.env.PORT!)).initialize();
+new ServerManager(app, AppDataSource, normalizePort(process.env.PORT!)).initialize();
 
 
 function normalizePort(val: string): number | never{

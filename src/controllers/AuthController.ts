@@ -1,20 +1,20 @@
 import AppDataSource from "../data/AppDataSource.js";
 
 import IController from "../common/base/IController.js";
-import IEncriptionRepository from "../common/base/IEncriptionRepository.js";
+import IEncriptionService from "../common/base/IEncriptionService.js";
 
-import BasicEncriptionRepo from "../repoitory/BasicEncriptionRepo.js";
+import BasicEncriptionService from "../services/BasicEncriptionService.js";
 
 import AuthEntity from "../models/entities/users/AuthEntity.js";
 
 
 export class AuthController extends IController<AuthEntity> {
 
-    private encriptionRepo: IEncriptionRepository;
+    private encriptionService: IEncriptionService;
 
-    constructor(encriptionRepo: IEncriptionRepository) {
+    constructor(encriptionService: IEncriptionService) {
         super(AppDataSource.getRepository("AuthEntity"), "a");
-        this.encriptionRepo = encriptionRepo;
+        this.encriptionService = encriptionService;
     }
 
 
@@ -23,8 +23,8 @@ export class AuthController extends IController<AuthEntity> {
     }
 
     public async initAuth(password?: string): Promise<AuthEntity> {
-        const salt = this.encriptionRepo.getSalt()
-        const hash = await this.encriptionRepo.encryptPassword(password, salt)
+        const salt = this.encriptionService.getSalt()
+        const hash = await this.encriptionService.encryptPassword(password, salt)
 
         return (new AuthEntity(hash, salt))
     }
@@ -32,4 +32,4 @@ export class AuthController extends IController<AuthEntity> {
 }
 
 
-export default new AuthController(new BasicEncriptionRepo);
+export default new AuthController(new BasicEncriptionService);

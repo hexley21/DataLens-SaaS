@@ -1,7 +1,7 @@
 import AppDataSource from "../data/AppDataSource.js";
 
 import IController from "../common/base/IController.js";
-import IEmailRepository from "../common/base/IEmailRepository.js";
+import IEmailService from "../common/base/IEmailService.js";
 
 import UserEntity from "../models/entities/users/UserEntity.js";
 import AuthEntity from "../models/entities/users/AuthEntity.js";
@@ -16,22 +16,22 @@ import AuthControllerInstance from "./AuthController.js";
 import UserControllerInstance from "./UserController.js";
 import CompanyControllerInstance from "./CompanyController.js";
 
-import BasicEmailRepo from "../repoitory/BasicEmailRepo.js";
-import createHttpError, { HttpError } from "http-errors";
+import BasicEmailService from "../services/BasicEmailService.js";
+import createHttpError from "http-errors";
 import { QueryFailedError } from "typeorm";
 
 
 export class RegisterController extends IController<UserEntity> {
-    private emailRepo: IEmailRepository;
+    private emailService: IEmailService;
 
     private authController: AuthController;
     private userController: UserController;
     private companyController: CompanyController;
 
-    constructor(emailRepo: IEmailRepository, authController: AuthController, userController: UserController, companyController: CompanyController) {
+    constructor(emailService: IEmailService, authController: AuthController, userController: UserController, companyController: CompanyController) {
         super(AppDataSource.getRepository(UserEntity), "u");
         
-        this.emailRepo = emailRepo;
+        this.emailService = emailService;
 
         this.authController = authController;
         this.userController = userController;
@@ -40,7 +40,7 @@ export class RegisterController extends IController<UserEntity> {
 
     public async registerCompany(email: string, company_name: string, industry: string, country: string, password: string): Promise<void | never> {
 
-        const transaction = AppDataSource.connection.createQueryRunner();
+        const transaction = AppDataSource.createQueryRunner();
 
         await transaction.startTransaction("SERIALIZABLE");
 
@@ -65,7 +65,7 @@ export class RegisterController extends IController<UserEntity> {
                 .values(this.companyController.initCompany(newUser.id, company_name, industry, country))    
                 .execute()
             
-            this.emailRepo.sendEmail(email, `${company_name} confirmation`, "confirm the email");
+            this.emailService.sendEmail(email, `${company_name} confirmation`, "confirm the email");
             
             await transaction.commitTransaction();  
         }
@@ -87,4 +87,4 @@ export class RegisterController extends IController<UserEntity> {
 }
 
 
-export default new RegisterController(BasicEmailRepo, AuthControllerInstance, UserControllerInstance, CompanyControllerInstance);
+export default new RegisterController(BasicEmailService, AuthControllerInstance, UserControllerInstance, CompanyControllerInstance);

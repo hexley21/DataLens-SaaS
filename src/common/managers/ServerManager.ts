@@ -2,31 +2,32 @@ import http from "http";
 
 import { Express } from "express";
 
-import DbHandler from "./DbHandler.js";
+import { DataSource } from "typeorm";
 
 
 export default class ServerHandler {
     private server: http.Server;
-    private dbHandler: DbHandler;
+    private appDataSource: DataSource;
     private port: number;
 
-    constructor(app: Express, dbHandler: DbHandler, port: number) {
+    constructor(app: Express, appDataSource: DataSource, port: number) {
         app.set("port", port);
 
         this.port = port;
-        this.server = http.createServer(app);
-        this.dbHandler = dbHandler;
+        this.server = http.createServer(app)
+        this.appDataSource = appDataSource;
     }
 
     public async close(): Promise<void> {
-        this.dbHandler.close();
+        this.appDataSource.initialize();
+        console.log("DataSource has been distroyed");
 
         this.server.close();
         console.log("Server has been closed");
     }
 
     public async initialize(): Promise<http.Server> {
-        await this.dbHandler.initialize()
+        await this.appDataSource.initialize()
         this.server.listen(this.port);
         
         this.server.on("error", () => {});

@@ -1,9 +1,9 @@
-import IEncriptionRepository from "../common/base/IEncriptionRepository.js";
+import IEncriptionService from "../common/base/IEncriptionService.js";
 
 import crypto from "crypto";
 
 
-export default class BasicEncriptionRepo implements IEncriptionRepository {
+export default class BasicEncriptionService implements IEncriptionService {
     saltLength: number = parseInt(process.env.SALT_LENGTH!);
 
 

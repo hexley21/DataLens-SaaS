@@ -16,7 +16,7 @@ afterEach(async () => {
 });
 
 it("database is initialized", () => {
-    expect(AppDataSource.connection.isInitialized).toBe(true);
+    expect(AppDataSource.isInitialized).toBe(true);
 });
 
 it("environment is valid", () => {

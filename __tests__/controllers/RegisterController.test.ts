@@ -1,6 +1,6 @@
 import AppDataSource from "../../src/data/AppDataSource.js";
 
-import BasicEmailRepo from "../../src/repoitory/BasicEmailRepo";
+import BasicEmailService from "../../src/services/BasicEmailService";
 import RegisterController from "../../src/controllers/RegisterController";
 
 import clearDb from "../test-util/DbUtils.js";
@@ -33,7 +33,7 @@ afterEach(async () => {
 
 
 it("test on email fail", async () => {
-    jest.spyOn(BasicEmailRepo, "sendEmail").mockImplementationOnce(jest.fn(() => { throw new Error("Error") }))
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementationOnce(jest.fn(() => { throw new Error("Error") }))
     await expect(RegisterController.registerCompany(email, companyName, industry, country, password)).rejects.toThrow(createHttpError(500, "Error"))
 })
 
