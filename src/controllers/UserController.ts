@@ -8,7 +8,7 @@ import RoleEnum from "../common/enum/RoleEnum.js";
 import { signObjToken } from "../common/util/JwtUtils.js";
 
 
-class UserController extends IController<UserEntity> {
+export class UserController extends IController<UserEntity> {
     constructor() {
         super(AppDataSource.getRepository(UserEntity), "u");
     }
@@ -25,11 +25,15 @@ class UserController extends IController<UserEntity> {
     public async insertUser(auth_id: string, email: string, role: RoleEnum, checkEmail?: boolean): Promise<UserEntity | never> {
         if (!checkEmail) this.existsByEmail(email)
 
-        return (await this.save(new UserEntity(auth_id, email, role)))[0]
+        return (await this.save(this.initUser(auth_id, email, role)))[0]
     }
 
     public signUserToken(id: string): string {
         return signObjToken({id: id})
+    }
+
+    public initUser(auth_id: string, email: string, role: RoleEnum, checkEmail?: boolean): UserEntity {
+        return new UserEntity(auth_id, email, role);
     }
 }
 

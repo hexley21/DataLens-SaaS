@@ -7,16 +7,25 @@ import CountriesEnum from "../common/enum/CountriesEnum.js";
 import IndustriesEnum from "../common/enum/IndustriesEnum.js";
 
 
-class CompanyController extends IController<CompanyEntity> {
+export class CompanyController extends IController<CompanyEntity> {
 
     constructor() {
         super(AppDataSource.getRepository(CompanyEntity), "c");
     }
 
 
-    public async insertCompany(user_id: string, company_name: string, industry: string, country: string, is_active?: boolean, current_billing_id?: string): Promise<CompanyEntity | never> {
-        return (await this.save(new CompanyEntity(user_id, company_name, industry as IndustriesEnum, country as CountriesEnum, is_active, current_billing_id)))[0]
+    public async existsByCompanyName(company_name: string) {
+        return Boolean(await this.countBy({company_name: company_name}))
     }
+
+    public async insertCompany(user_id: string, company_name: string, industry: string, country: string, is_active?: boolean, current_billing_id?: string): Promise<CompanyEntity | never> {
+        return (await this.save(this.initCompany(user_id, company_name, industry, country, is_active, current_billing_id)))[0]
+    }
+
+    public initCompany(user_id: string, company_name: string, industry: string, country: string, is_active?: boolean, current_billing_id?: string): CompanyEntity {
+        return new CompanyEntity(user_id, company_name, industry as IndustriesEnum, country as CountriesEnum, is_active, current_billing_id)
+    }
+
 
 }
 
