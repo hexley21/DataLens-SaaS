@@ -17,7 +17,7 @@ export default Router()
         const id = verifyToken(token, process.env.EMAIL_ACCESS_TOKEN!).id
 
         if (await UserController.isActive(id)) {
-            UserController.updateBy({id: id}, {is_active: true})
+            UserController.updateBy({is_active: true}, {id: id})
             res.redirect("/api/login")
         } else res.send("Your account is already activated")
     }
