@@ -11,6 +11,7 @@ CREATE TABLE users.user(
     email VARCHAR(255) CHECK(EMAIL ~ '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{3,}))$') NOT NULL,
     role ROLE NOT NULL,
     registration_date DATE DEFAULT NOW() NOT NULL,
+    is_active BOOLEAN DEFAULT FALSE NOT NULL,
     UNIQUE(email)
 );
 ```
@@ -35,7 +36,6 @@ CREATE TABLE users.company(
     company_name VARCHAR(64) CHECK(company_name ~ '^(?!\s)(?!.*\s$)(?=.*[a-zA-Z0-9])[a-zA-Z0-9 ''~?!]{2,}$') NOT NULL,
     industry VARCHAR(8) REFERENCES industries(id) ON DELETE SET DEFAULT DEFAULT 'ELSE' NOT NULL,
     country VARCHAR(2) REFERENCES countries(id) ON DELETE SET DEFAULT NULL,
-    is_active BOOLEAN DEFAULT FALSE NOT NULL,
     UNIQUE(company_name)
 );
 ```

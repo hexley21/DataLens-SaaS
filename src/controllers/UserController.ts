@@ -18,6 +18,10 @@ export class UserController extends IController<UserEntity> {
         return Boolean(await this.countBy({email: email }));
     }
 
+    public async isActive(id: string): Promise<Boolean> {
+        return (await this.findBy({id: id}))[0].is_active != null;
+    }
+
     public async findByEmail(email?: string): Promise<UserEntity | undefined> {
         return (await this.findBy({email: email }))[0];
     }

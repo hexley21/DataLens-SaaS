@@ -18,12 +18,12 @@ export class CompanyController extends IController<CompanyEntity> {
         return Boolean(await this.countBy({company_name: company_name}))
     }
 
-    public async insertCompany(user_id: string, company_name: string, industry: string, country: string, is_active?: boolean, current_billing_id?: string): Promise<CompanyEntity | never> {
-        return (await this.save(this.initCompany(user_id, company_name, industry, country, is_active, current_billing_id)))[0]
+    public async insertCompany(user_id: string, company_name: string, industry: string, country: string, current_billing_id?: string): Promise<CompanyEntity | never> {
+        return (await this.save(this.initCompany(user_id, company_name, industry, country, current_billing_id)))[0]
     }
 
-    public initCompany(user_id: string, company_name: string, industry: string, country: string, is_active?: boolean, current_billing_id?: string): CompanyEntity {
-        return new CompanyEntity(user_id, company_name, industry as IndustriesEnum, country as CountriesEnum, is_active, current_billing_id)
+    public initCompany(user_id: string, company_name: string, industry: string, country: string, current_billing_id?: string): CompanyEntity {
+        return new CompanyEntity(user_id, company_name, industry as IndustriesEnum, country as CountriesEnum, current_billing_id)
     }
 
 

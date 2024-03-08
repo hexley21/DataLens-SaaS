@@ -11,10 +11,12 @@ import RoleEnum from "../../../common/enum/RoleEnum.js";
 })
 export default class UserEntity {
 
-    constructor(auth_id: string, email: string, role: RoleEnum) {
+    constructor(auth_id: string, email: string, role: RoleEnum, is_active?: boolean, ) {
         this.auth_id = auth_id;
         this.email = email;
         this.role = role;
+
+        if (is_active) this.is_active = is_active;
     }
 
     
@@ -51,6 +53,12 @@ export default class UserEntity {
     })
     public role!: RoleEnum;
 
+    @Column({
+        type: "boolean",
+        name: "is_active",
+        nullable: false
+    })
+    public is_active!: boolean;
 
     @OneToOne(() => AuthEntity)
     @JoinColumn({

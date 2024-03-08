@@ -60,14 +60,13 @@ export class RegisterController extends IController<UserEntity> {
                 .returning("*")
                 .execute()).generatedMaps as UserEntity[])[0];
 
-            const newCompany = ((await transaction.manager.createQueryBuilder()
+            await transaction.manager.createQueryBuilder()
                 .insert()
                 .into(CompanyEntity)
                 .values(this.companyController.initCompany(newUser.id, company_name, industry, country))    
-                .returning("*")
-                .execute()).generatedMaps as CompanyEntity[])[0]
+                .execute()
             
-            const confirmationToken = signObjToken({id: newCompany.id}, "1d", process.env.EMAIL_ACCESS_TOKEN!);
+            const confirmationToken = signObjToken({id: newUser.id}, process.env.EMAIL_CONFIRMATION_EXPIRATION!, process.env.EMAIL_ACCESS_TOKEN!);
             const confirmationLink = `${process.env.HOST}/api/activate/${confirmationToken}`;
 
             this.emailService.sendConfirmation(confirmationLink, newUser.email)

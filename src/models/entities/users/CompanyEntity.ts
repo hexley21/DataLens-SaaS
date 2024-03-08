@@ -16,13 +16,12 @@ import CountriesEnum from "../../../common/enum/CountriesEnum.js";
 })
 export default class CompanyEntity {
 
-    constructor(user_id: string, company_name: string, industry: IndustriesEnum, country: CountriesEnum, is_active?: boolean, current_billing_id?: string) {
+    constructor(user_id: string, company_name: string, industry: IndustriesEnum, country: CountriesEnum, current_billing_id?: string) {
         this.user_id = user_id;
         this.company_name = company_name;
         this.industry = industry;
         this.country = country;
         
-        if (is_active) this.is_active = is_active;
         if (current_billing_id) this.current_billing_id = current_billing_id;
     }
 
@@ -64,14 +63,7 @@ export default class CompanyEntity {
         name: "country",
         nullable: true
     })
-    public country?: CountriesEnum;    
-
-    @Column({
-        type: "boolean",
-        name: "is_active",
-        nullable: false
-    })
-    public is_active!: boolean;
+    public country?: CountriesEnum;
 
     @OneToOne(() => IndustriesEntity)
     @JoinColumn({

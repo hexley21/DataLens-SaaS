@@ -4,6 +4,8 @@ import { Router } from "express";
 export type AppRoutes = {
     index: Router,
     register: Router,
+    activate: Router,
+    login: Router
 };
 
 
