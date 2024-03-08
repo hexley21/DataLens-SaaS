@@ -1,4 +1,3 @@
-import { resolve } from "path";
 import IEncriptionService from "../common/base/IEncriptionService.js";
 
 import crypto from "crypto";
@@ -21,11 +20,9 @@ export default class BasicEncriptionService implements IEncriptionService {
                 "sha512",
                 (err, key) => {
                     if (err) reject(err);
-                    else resolve(key.toString('hex'));
+                    else resolve(key.toString("hex"));
             })
         })
-        
-
     }
 
     public getSalt(length?: number): string {

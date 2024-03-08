@@ -5,6 +5,7 @@ import RegisterController from "../../src/controllers/RegisterController";
 
 import clearDb from "../test-util/DbUtils.js";
 import createHttpError from "http-errors";
+import UserController from "../../src/controllers/UserController.js";
 
 const email = "test@test.com";
 const companyName = "Cool Company";
@@ -32,17 +33,18 @@ afterEach(async () => {
 });
 
 
-it("test on email fail", async () => {
-    jest.spyOn(BasicEmailService, "sendEmail").mockImplementationOnce(jest.fn(() => { throw new Error("Error") }))
-    await expect(RegisterController.registerCompany(email, companyName, industry, country, password)).rejects.toThrow(createHttpError(500, "Error"))
+
+describe("email faults", () => {
+    jest.spyOn(BasicEmailService, "sendConfirmation").mockImplementationOnce(jest.fn(() => { throw new Error("Error") }))
+    
+    it("throws error and reverts on failed email", async () => {
+        await expect(RegisterController.registerCompany(email, companyName, industry, country, password)).rejects.toThrow(createHttpError(500, "Error"))
+        expect(await UserController.findByEmail(email)).toBeUndefined()
+    })
 })
 
-it("test register on valid arguments", async () => {
-    await expect(RegisterController.registerCompany(email, companyName, industry, country, password)).resolves.not.toThrow()
-});
 
-
-describe("test register on invalid arguments", () => {
+describe("throws exceptions on invalid data", () => {
     it("invalid email", async () => {
         await expect(RegisterController.registerCompany(invalidEmail, companyName, industry, country, password)).rejects.toThrow()
     })
@@ -63,3 +65,7 @@ describe("test register on invalid arguments", () => {
         await expect(RegisterController.registerCompany(email, companyName, industry, country, invalidPassword)).rejects.toThrow()
     })
 })
+
+it("registers on valid data", async () => {
+    await expect(RegisterController.registerCompany(email, companyName, industry, country, password)).resolves.not.toThrow()
+});

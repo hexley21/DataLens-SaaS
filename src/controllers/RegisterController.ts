@@ -19,6 +19,7 @@ import CompanyControllerInstance from "./CompanyController.js";
 import BasicEmailService from "../services/BasicEmailService.js";
 import createHttpError from "http-errors";
 import { QueryFailedError } from "typeorm";
+import { signObjToken } from "../common/util/JwtUtils.js";
 
 
 export class RegisterController extends IController<UserEntity> {
@@ -59,13 +60,17 @@ export class RegisterController extends IController<UserEntity> {
                 .returning("*")
                 .execute()).generatedMaps as UserEntity[])[0];
 
-            await transaction.manager.createQueryBuilder()
+            const newCompany = ((await transaction.manager.createQueryBuilder()
                 .insert()
                 .into(CompanyEntity)
                 .values(this.companyController.initCompany(newUser.id, company_name, industry, country))    
-                .execute()
+                .returning("*")
+                .execute()).generatedMaps as CompanyEntity[])[0]
             
-            this.emailService.sendEmail(email, `${company_name} confirmation`, "confirm the email");
+            const confirmationToken = signObjToken({id: newCompany.id}, "1d", process.env.EMAIL_ACCESS_TOKEN!);
+            const confirmationLink = `${process.env.HOST}/api/activate/${confirmationToken}`;
+
+            this.emailService.sendConfirmation(confirmationLink, newUser.email)
             
             await transaction.commitTransaction();  
         }

@@ -34,11 +34,12 @@ it("test user insertion", async () => {
 
     const insertedUser = await UserController.findByEmail(email);
     
-    expect(insertedUser.id).not.toBeNull();
-    expect(insertedUser.auth_id).toBe(newAuth.id)
-    expect(insertedUser.email).toBe(email)
-    expect(insertedUser.registration_date).not.toBeNull();
-    expect(insertedUser.role).toBe(RoleEnum.COMPANY)
+    expect(insertedUser).not.toBeUndefined()
+    expect(insertedUser!.id).not.toBeUndefined();
+    expect(insertedUser!.auth_id).toBe(newAuth.id)
+    expect(insertedUser!.email).toBe(email)
+    expect(insertedUser!.registration_date).not.toBeNull();
+    expect(insertedUser!.role).toBe(RoleEnum.COMPANY)
 
 });
 

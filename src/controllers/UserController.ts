@@ -18,7 +18,7 @@ export class UserController extends IController<UserEntity> {
         return Boolean(await this.countBy({email: email }));
     }
 
-    public async findByEmail(email?: string): Promise<UserEntity> {
+    public async findByEmail(email?: string): Promise<UserEntity | undefined> {
         return (await this.findBy({email: email }))[0];
     }
 

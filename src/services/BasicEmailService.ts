@@ -14,16 +14,25 @@ const transporter = createTransport({
 
 export class BasicEmailService implements IEmailService {
 
-    public sendEmail(to: string, subject: string, text: string, from?: string): void {
+    public sendEmail(to: string, subject: string, html?: string, text?: string, from?: string): void {
         transporter.sendMail({
             from: from ?? process.env.DEFAULT_EMAIL!,
             to: to,
             subject: subject,
-            text: text
+            text: text,
+            html: html
         });
 
         console.log(`Email with subject: ${subject} was sent to ${to}`)
     };
+
+    public sendConfirmation(link: string, to: string): void {
+        this.sendEmail(
+            to,
+            "Email confirmation",
+            `<p>Hello! To confirm email, please click on the following link: <a href=\"${link}\">${link}</a></p>`,
+        );
+    }
 
 };
 
