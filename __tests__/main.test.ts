@@ -8,7 +8,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    await AppDataSource.close()
+    await AppDataSource.destroy()
 });
 
 afterEach(async () => {
