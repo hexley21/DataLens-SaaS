@@ -55,7 +55,7 @@ CREATE TABLE users.employee(
 ```sql
 CREATE TABLE subscription.billing_record(
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-    company_id UUID REFERENCES users.company(id) ON DELETE CASCADE NOT NULL,
+    company_id UUID REFERENCES users.company(id) ON DELETE RESTRICT NOT NULL,
     plan_id INTEGER REFERENCES subscription.plan(id) ON DELETE CASCADE NOT NULL,
     plan_start DATE DEFAULT NOW() NOT NULL,
     plan_end DATE GENERATED ALWAYS AS (plan_start + INTERVAL '1 month') STORED NOT NULL,
