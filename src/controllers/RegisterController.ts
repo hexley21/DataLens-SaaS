@@ -66,10 +66,7 @@ export class RegisterController extends IController<UserEntity> {
                 .values(this.companyController.initCompany(newUser.id, company_name, industry, country))    
                 .execute()
             
-            const confirmationToken = signObjToken({id: newUser.id}, process.env.EMAIL_CONFIRMATION_EXPIRATION!, process.env.EMAIL_ACCESS_TOKEN!);
-            const confirmationLink = `${process.env.HOST}/api/activate/${confirmationToken}`;
-
-            this.emailService.sendConfirmation(confirmationLink, newUser.email)
+            this.emailService.sendConfirmation(newUser.id, newUser.email)
             
             await transaction.commitTransaction();  
         }
