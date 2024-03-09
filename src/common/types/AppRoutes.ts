@@ -8,18 +8,29 @@ export type AppRoutes = {
     activate: Router,
     login: Router,
     reactivate: Router,
-    profile: Router
+    profile: Router,
+    password: Router
+    employee: Router,
+    subscription: Router,
+    billing: Router,
+    file: Router
 };
 
 
+/**
+ * concatetenates the string values of @AppRoutes type keys with slash
+ * to easily assign every route to corresponding router
+ * 
+ * @returns master router which contains every other router from the type above
+ */
 export function getRoutes(apiRoutes: AppRoutes): Router {
-    const router = Router();
+    const masterRouter = Router();
     for (let r in apiRoutes) {
         // @ts-ignore
-        router.use(`/${r}`, apiRoutes[r]);
+        masterRouter.use(`/${r}`, apiRoutes[r]);
     }
-    router.use("/", apiRoutes.index);
+    masterRouter.use("/", apiRoutes.index);
 
 
-    return router;
+    return masterRouter;
 };
