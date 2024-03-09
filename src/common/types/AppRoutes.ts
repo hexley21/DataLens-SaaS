@@ -2,6 +2,7 @@ import { Router } from "express";
 
 
 export type AppRoutes = {
+    list: Router
     index: Router,
     register: Router,
     activate: Router,

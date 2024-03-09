@@ -15,5 +15,4 @@ export default getRoutes({
     login: apiLoginRouter,
     reactivate: apiResendRouter,
     profile: apiProfileRouter,
-    list: apiListRouter,
 });
