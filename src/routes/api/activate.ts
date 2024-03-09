@@ -3,9 +3,10 @@ import Router from "express-promise-router";
 
 import createHttpError, { HttpError } from "http-errors";
 
-import { verifyToken } from "../../common/util/JwtUtils.js";
 import jwt from "jsonwebtoken";
-import SubscriptionController from "../../controllers/SubscriptionController.js";
+import { verifyToken } from "../../common/util/JwtUtils.js";
+import UserController from "../../controllers/UserController.js";
+
 
 
 export default Router()
@@ -15,7 +16,7 @@ export default Router()
     try {
         const id = verifyToken(token, process.env.EMAIL_ACCESS_TOKEN!).id
 
-        await SubscriptionController.activateCompany(id)
+        await UserController.activateUser(id)
         res.redirect("/api/login")
     }
     catch(e) {

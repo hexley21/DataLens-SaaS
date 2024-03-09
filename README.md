@@ -34,7 +34,7 @@ CREATE TABLE users.company(
     subscription_id UUID REFERENCES subscription.record(id) ON DELETE RESTRICT NOT NULL,
     company_name VARCHAR(64) CHECK(company_name ~ '^(?!\s)(?!.*\s$)(?=.*[a-zA-Z0-9])[a-zA-Z0-9 ''~?!]{2,}$') NOT NULL,
     industry VARCHAR(8) REFERENCES industries(id) ON DELETE SET DEFAULT DEFAULT 'ELSE' NOT NULL,
-    country VARCHAR(2) REFERENCES countries(id) ON DELETE SET DEFAULT NULL,
+    country VARCHAR(2) REFERENCES countries(id) NOT NULL,
     UNIQUE(company_name)
 );
 ```

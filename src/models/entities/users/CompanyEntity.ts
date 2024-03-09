@@ -4,8 +4,9 @@ import IndustriesEntity from "../IndustriesEntity.js";
 import EmployeeEntity from "./EmployeeEntity.js";
 import RecordEntity from "../subscription/RecordEntity.js";
 
-import IndustriesEnum from "../enum/IndustriesEnum.js";
-import CountriesEnum from "../enum/CountriesEnum.js";
+import CountriesEntity from "../CountriesEntity.js";
+import UserEntity from "./UserEntity.js";
+import { isCountryValid, isIndustryValid } from "../../../common/util/ValidationUtils.js";
 
 
 @Entity({
@@ -14,13 +15,20 @@ import CountriesEnum from "../enum/CountriesEnum.js";
 })
 export default class CompanyEntity {
 
-    constructor(user_id: string, company_name: string, industry: IndustriesEnum, country: CountriesEnum, subscription_id?: string) {
-        this.user_id = user_id;
-        this.company_name = company_name;
-        this.industry = industry;
-        this.country = country;
+    static newInstance(user_id: string, company_name: string, industry: string, country: string, subscription_id?: string): CompanyEntity {
+        const company = new CompanyEntity();
+
+        company.user_id = user_id;
+        company.company_name = company_name;
+
+        if (isCountryValid(country)) company.country = country;
+        else throw Error("Invalid Country")
+        if (isIndustryValid(industry)) company.industry = industry;
+        else throw Error("Invalid industry")
         
-        if (subscription_id) this.subscription_id = subscription_id;
+        if (subscription_id) company.subscription_id = subscription_id;
+
+        return company;
     }
 
 
@@ -54,14 +62,14 @@ export default class CompanyEntity {
         name: "industry",
         nullable: false
     })
-    public industry!: IndustriesEnum;
+    public industry!: string;
 
     @Column({
         type: "varchar",
         name: "country",
         nullable: true
     })
-    public country?: CountriesEnum;
+    public country?: string;
 
     @OneToOne(() => IndustriesEntity)
     @JoinColumn({
@@ -70,6 +78,19 @@ export default class CompanyEntity {
     })
     public industry_obj?: string;
 
+    @OneToOne(() => CountriesEntity)
+    @JoinColumn({
+        name: "country",
+        referencedColumnName: "id"
+    })
+    public country_obj?: string;
+
+    @OneToOne(() => UserEntity)
+    @JoinColumn({
+        name: "user_id",
+        referencedColumnName: "id"
+    })
+    public user?: UserEntity
 
     @OneToMany(() => EmployeeEntity, (employee) => employee.company)
     public employees?: EmployeeEntity[];

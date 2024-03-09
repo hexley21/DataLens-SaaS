@@ -23,7 +23,7 @@ export class CompanyController extends IController<CompanyEntity> {
     }
 
     public initCompany(user_id: string, company_name: string, industry: string, country: string, current_billing_id?: string): CompanyEntity {
-        return new CompanyEntity(user_id, company_name, industry as IndustriesEnum, country as CountriesEnum, current_billing_id)
+        return CompanyEntity.newInstance(user_id, company_name, industry as IndustriesEnum, country as CountriesEnum, current_billing_id)
     }
 
 

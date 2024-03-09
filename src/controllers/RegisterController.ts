@@ -1,90 +1,30 @@
-import AppDataSource from "../data/AppDataSource.js";
+import IUserRepository from "../common/interfaces/repository/IUserRepository.js";
+import CompanyProfile from "../models/entities/joined/CompanyProfile.js";
+import EmployeeProfile from "../models/entities/joined/EmployeeProfile.js";
 
-import IController from "../common/interfaces/IController.js";
-import IEmailService from "../common/interfaces/IEmailService.js";
-
-import UserEntity from "../models/entities/users/UserEntity.js";
-import AuthEntity from "../models/entities/users/AuthEntity.js";
-import CompanyEntity from "../models/entities/users/CompanyEntity.js";
-import RoleEnum from "../models/entities/enum/RoleEnum.js";
-
-import { AuthController } from "./AuthController.js";
-import { UserController } from "./UserController.js";
-import { CompanyController } from "./CompanyController.js";
-
-import AuthControllerInstance from "./AuthController.js";
-import UserControllerInstance from "./UserController.js";
-import CompanyControllerInstance from "./CompanyController.js";
-
-import BasicEmailService from "../services/BasicEmailService.js";
-import createHttpError from "http-errors";
-import { QueryFailedError } from "typeorm";
+import CompanyRepositoryInstance, { CompanyRepository } from "../repository/CompanyRepository.js";
+import EmployeeRepositoryInstance, { EmployeeRepository } from "../repository/EmployeeRepository.js";
 
 
-export class RegisterController extends IController<UserEntity> {
-    private emailService: IEmailService;
 
-    private authController: AuthController;
-    private userController: UserController;
-    private companyController: CompanyController;
+export class RegisterController {
+    private companyRepository: IUserRepository<CompanyProfile>
+    private employeeRepository: IUserRepository<EmployeeProfile>
 
-    constructor(emailService: IEmailService, authController: AuthController, userController: UserController, companyController: CompanyController) {
-        super(AppDataSource.getRepository(UserEntity), "u");
-        
-        this.emailService = emailService;
-
-        this.authController = authController;
-        this.userController = userController;
-        this.companyController = companyController;
+    constructor(companyRepository: IUserRepository<CompanyProfile>, employeeRepository: IUserRepository<EmployeeProfile>) {
+        this.companyRepository = companyRepository;
+        this.employeeRepository = employeeRepository;
     }
 
-    public async registerCompany(email: string, company_name: string, industry: string, country: string, password: string): Promise<void | never> {
+    public async registerCompany(email: string, company_name: string, industry: string, country: string, password: string): Promise<string | never> {
+        return await (this.companyRepository as CompanyRepository).registerCompany(email, company_name, industry, country, password)
+    }
 
-        const transaction = AppDataSource.createQueryRunner();
-
-        await transaction.startTransaction("SERIALIZABLE");
-
-        try {
-            const newAuth = ((await transaction.manager.createQueryBuilder()
-                .insert()
-                .into(AuthEntity)
-                .values(await this.authController.initAuth(password))
-                .returning("*")
-                .execute()).generatedMaps as AuthEntity[])[0];
-
-            const newUser = ((await transaction.manager.createQueryBuilder()
-                .insert()
-                .into(UserEntity)
-                .values(this.userController.initUser(newAuth.id, email, RoleEnum.COMPANY))
-                .returning("*")
-                .execute()).generatedMaps as UserEntity[])[0];
-
-            await transaction.manager.createQueryBuilder()
-                .insert()
-                .into(CompanyEntity)
-                .values(this.companyController.initCompany(newUser.id, company_name, industry, country))    
-                .execute()
-            
-            this.emailService.sendConfirmation(newUser.id, newUser.email)
-            
-            await transaction.commitTransaction();  
-        }
-        catch(e: any) {
-            await transaction.rollbackTransaction();
-            if (e instanceof QueryFailedError) {
-                throw createHttpError(400, e.message);
-            }
-            else {
-                throw createHttpError(500, (e as Error).message);
-            }
-        }
-        finally {
-            await transaction.release()
-        }
-
+    public async registerEmployee(email: string, company_id: string): Promise<string | never> {
+        throw Error("Not implemented")
     }
 
 }
 
 
-export default new RegisterController(BasicEmailService, AuthControllerInstance, UserControllerInstance, CompanyControllerInstance);
+export default new RegisterController(CompanyRepositoryInstance, EmployeeRepositoryInstance);

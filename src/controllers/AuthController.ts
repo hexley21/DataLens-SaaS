@@ -53,4 +53,4 @@ export class AuthController extends IController<AuthEntity> {
 }
 
 
-export default new AuthController(new BasicEncriptionService);
+export default new AuthController(BasicEncriptionService);
