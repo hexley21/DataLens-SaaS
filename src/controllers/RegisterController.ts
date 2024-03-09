@@ -1,12 +1,12 @@
 import AppDataSource from "../data/AppDataSource.js";
 
-import IController from "../common/base/IController.js";
-import IEmailService from "../common/base/IEmailService.js";
+import IController from "../common/interfaces/IController.js";
+import IEmailService from "../common/interfaces/IEmailService.js";
 
 import UserEntity from "../models/entities/users/UserEntity.js";
 import AuthEntity from "../models/entities/users/AuthEntity.js";
 import CompanyEntity from "../models/entities/users/CompanyEntity.js";
-import RoleEnum from "../common/enum/RoleEnum.js";
+import RoleEnum from "../models/entities/enum/RoleEnum.js";
 
 import { AuthController } from "./AuthController.js";
 import { UserController } from "./UserController.js";

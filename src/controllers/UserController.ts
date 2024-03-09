@@ -1,9 +1,9 @@
 import AppDataSource from "../data/AppDataSource.js";
 
-import IController from "../common/base/IController.js";
+import IController from "../common/interfaces/IController.js";
 
 import UserEntity from "../models/entities/users/UserEntity.js";
-import RoleEnum from "../common/enum/RoleEnum.js";
+import RoleEnum from "../models/entities/enum/RoleEnum.js";
 
 import { signObjToken } from "../common/util/JwtUtils.js";
 

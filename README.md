@@ -32,7 +32,7 @@ CREATE TABLE users.auth(
 CREATE TABLE users.company(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     user_id UUID REFERENCES users.user(id) ON DELETE CASCADE NOT NULL,
-    current_billing_id UUID REFERENCES subscription.billing_record(id) ON DELETE RESTRICT NOT NULL,
+    subscription_id UUID REFERENCES subscription.record(id) ON DELETE RESTRICT NOT NULL,
     company_name VARCHAR(64) CHECK(company_name ~ '^(?!\s)(?!.*\s$)(?=.*[a-zA-Z0-9])[a-zA-Z0-9 ''~?!]{2,}$') NOT NULL,
     industry VARCHAR(8) REFERENCES industries(id) ON DELETE SET DEFAULT DEFAULT 'ELSE' NOT NULL,
     country VARCHAR(2) REFERENCES countries(id) ON DELETE SET DEFAULT NULL,
@@ -50,25 +50,25 @@ CREATE TABLE users.employee(
 );
 ```
 
-### subscription.billing_record
+### subscription.record
 
 ```sql
-CREATE TABLE subscription.billing_record(
+CREATE TABLE subscription.record(
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     company_id UUID REFERENCES users.company(id) ON DELETE RESTRICT NOT NULL,
-    plan_id INTEGER REFERENCES subscription.plan(id) ON DELETE CASCADE NOT NULL,
-    plan_start DATE DEFAULT NOW() NOT NULL,
-    plan_end DATE GENERATED ALWAYS AS (plan_start + INTERVAL '1 month') STORED NOT NULL,
+    tier_id INTEGER REFERENCES subscription.tier(id) ON DELETE CASCADE NOT NULL,
+    tier_start DATE DEFAULT NOW() NOT NULL,
+    tier_end DATE GENERATED ALWAYS AS (tier_start + INTERVAL '1 month') STORED NOT NULL,
     billed_at DATE,
     user_count INTEGER DEFAULT 0 NOT NULL CHECK(user_count >=0),
     files_uploaded INTEGER DEFAULT 0 NOT NULL CHECK(files_uploaded >= 0)
 );
 ```
 
-### subscription.plan
+### subscription.tier
 
 ```sql
-CREATE TABLE subscription.plan(
+CREATE TABLE subscription.tier(
     id SERIAL PRIMARY KEY NOT NULL,
     name VARCHAR(63) NOT NULL,
     file_limit INTEGER CHECK((file_limit > 0)),

@@ -7,8 +7,8 @@ import AuthEntity from "../models/entities/users/AuthEntity.js";
 import CompanyEntity from "../models/entities/users/CompanyEntity.js";
 import EmployeeEntity from "../models/entities/users/EmployeeEntity.js";
 
-import BillingRecordEntity from "../models/entities/subscription/BillingRecordEntity.js";
-import PlanEntity from "../models/entities/subscription/PlanEntity.js";
+import RecordEntity from "../models/entities/subscription/RecordEntity.js";
+import TierEntity from "../models/entities/subscription/TierEntity.js";
 import { DataSource } from "typeorm";
 
 
@@ -22,7 +22,7 @@ export default new DataSource({
     synchronize: false,
     uuidExtension: 'uuid-ossp',
     logging: true,
-    entities: [ IndustriesEntity, CountriesEntity, UserEntity, AuthEntity, CompanyEntity, EmployeeEntity, BillingRecordEntity, PlanEntity ],
+    entities: [ IndustriesEntity, CountriesEntity, UserEntity, AuthEntity, CompanyEntity, EmployeeEntity, RecordEntity, TierEntity ],
     subscribers: [],
     migrations: []
 });

@@ -1,4 +1,4 @@
-import IEmailService from "../common/base/IEmailService.js";
+import IEmailService from "../common/interfaces/IEmailService.js";
 
 import { createTransport } from "nodemailer";
 import { signObjToken } from "../common/util/JwtUtils.js";
