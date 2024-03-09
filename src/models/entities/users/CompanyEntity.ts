@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 import IndustriesEntity from "../IndustriesEntity.js";
 import EmployeeEntity from "./EmployeeEntity.js";
@@ -71,14 +71,14 @@ export default class CompanyEntity {
     })
     public country?: string;
 
-    @OneToOne(() => IndustriesEntity)
+    @ManyToOne(() => IndustriesEntity)
     @JoinColumn({
         name: "industry",
         referencedColumnName: "id"
     })
     public industry_obj?: string;
 
-    @OneToOne(() => CountriesEntity)
+    @ManyToOne(() => CountriesEntity)
     @JoinColumn({
         name: "country",
         referencedColumnName: "id"
