@@ -3,7 +3,7 @@ import IEncriptionService from "../common/interfaces/IEncriptionService.js";
 import crypto from "crypto";
 
 
-export default class BasicEncriptionService implements IEncriptionService {
+export class BasicEncriptionService implements IEncriptionService {
     saltLength: number = parseInt(process.env.SALT_LENGTH!);
 
 
@@ -30,3 +30,5 @@ export default class BasicEncriptionService implements IEncriptionService {
     }
 
 }
+
+export default new BasicEncriptionService()

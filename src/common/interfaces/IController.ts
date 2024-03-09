@@ -4,7 +4,7 @@ import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity
 import JoinOptions from "../types/JoinOptions.js";
 
 
-export default abstract class Controller<T extends ObjectLiteral> {
+export default abstract class IController<T extends ObjectLiteral> {
     private repository: Repository<T>
     private alias: string
 

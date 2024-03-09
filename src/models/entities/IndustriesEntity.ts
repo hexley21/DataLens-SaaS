@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
 
-@Entity("countries")
+@Entity("industries")
 export default class IndustriesEntity {
 
     constructor(id: string, name: string) {
