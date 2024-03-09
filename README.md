@@ -10,8 +10,7 @@ CREATE TABLE users.user(
     auth_id UUID REFERENCES users.auth(id) ON DELETE RESTRICT,
     email VARCHAR(255) CHECK(EMAIL ~ '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{3,}))$') NOT NULL,
     role ROLE NOT NULL,
-    registration_date DATE DEFAULT NOW() NOT NULL,
-    is_active BOOLEAN DEFAULT FALSE NOT NULL,
+    registration_date DATE,
     UNIQUE(email)
 );
 ```

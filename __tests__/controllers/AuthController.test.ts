@@ -57,6 +57,8 @@ describe("Authentication checks", () => {
         const newUser = await UserController.insertUser(newAuth.id, email, RoleEnum.COMPANY)
         await activateUser(newUser.id)
 
+        console.log((await UserController.findOneBy({ id: newUser.id }))?.registration_date)
+
 
         await expect(AuthController.authenticateUser(email, incorrectPassword)).rejects.toThrow(createHttpError(401, "Password is incorrect"));
     })
@@ -71,5 +73,5 @@ describe("Authentication checks", () => {
 
 
 async function activateUser(user_id: string) {
-    await UserController.updateBy({ is_active: true }, { id: user_id})
+    await UserController.updateBy({ registration_date: new Date() }, { id: user_id})
 }

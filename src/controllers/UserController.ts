@@ -19,7 +19,7 @@ export class UserController extends IController<UserEntity> {
     }
 
     public async isActive(id: string): Promise<Boolean> {
-        return (await this.findBy({id: id}))[0].is_active != null;
+        return (await this.findBy({id: id}))[0].registration_date != null;
     }
 
     public async findByEmail(email?: string): Promise<UserEntity | undefined> {

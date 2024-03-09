@@ -38,7 +38,7 @@ it("test user insertion", async () => {
     expect(insertedUser!.id).not.toBeUndefined();
     expect(insertedUser!.auth_id).toBe(newAuth.id)
     expect(insertedUser!.email).toBe(email)
-    expect(insertedUser!.registration_date).not.toBeNull();
+    expect(insertedUser!.registration_date).toBeNull();
     expect(insertedUser!.role).toBe(RoleEnum.COMPANY)
 
 });

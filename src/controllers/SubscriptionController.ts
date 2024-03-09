@@ -20,7 +20,7 @@ export class SubscriptionController {
         const user = await UserController.findOneBy({id: user_id})
 
         if (!user) throw new Error("This company does not exist")
-        if (user.is_active) {
+        if (user.registration_date) {
             throw createHttpError(409, "This user is already activated")
         }
 
@@ -47,7 +47,7 @@ export class SubscriptionController {
 
                 await transaction.manager.createQueryBuilder(UserEntity, "u")
                     .update()
-                    .set({ is_active: true })
+                    .set({ registration_date: new Date() })
                     .where({ id: user_id})
                     .execute()
 
