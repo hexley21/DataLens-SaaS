@@ -6,6 +6,8 @@ import IEncriptionService from "../common/base/IEncriptionService.js";
 import BasicEncriptionService from "../services/BasicEncriptionService.js";
 
 import AuthEntity from "../models/entities/users/AuthEntity.js";
+import UserEntity from "../models/entities/users/UserEntity.js";
+import createHttpError from "http-errors";
 
 
 export class AuthController extends IController<AuthEntity> {
@@ -27,6 +29,23 @@ export class AuthController extends IController<AuthEntity> {
         const hash = await this.encriptionService.encryptPassword(password, salt)
 
         return (new AuthEntity(hash, salt))
+    }
+
+    public async authenticateUser(email?: string, password?: string): Promise<string> {
+        if (!email || !password) throw createHttpError(400, "Email and Password must be present")
+
+        const { hash, id, salt} = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
+            .leftJoinAndSelect("u.auth", "a")
+            .select("u.id, a.hash, a.salt")
+            .where({ email: email})
+            .getRawOne())
+        
+            
+        if (!id) throw createHttpError(401, "Account doesn't exist");
+    
+        if (hash === await this.encriptionService.encryptPassword(password, salt)) return id;
+    
+        throw createHttpError(401, "Password is incorrect");
     }
 
 }

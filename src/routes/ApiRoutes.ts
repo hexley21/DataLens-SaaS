@@ -5,11 +5,13 @@ import apiRegisterRouter from "./api/register.js";
 import apiConfirmationRouter from "./api/activate.js"
 import apiLoginRouter from "./api/login.js"
 import apiResendRouter from "./api/reactivate.js"
+import apiProfileRouter from "./api/profile.js"
 
 export default getRoutes({
     index: apiIndexRouter,
     register: apiRegisterRouter,
     activate: apiConfirmationRouter,
     login: apiLoginRouter,
-    reactivate: apiResendRouter
+    reactivate: apiResendRouter,
+    profile: apiProfileRouter
 });
