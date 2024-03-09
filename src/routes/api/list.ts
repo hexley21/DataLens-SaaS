@@ -10,6 +10,9 @@ import { EntityTarget, ObjectLiteral } from "typeorm";
 
 
 export default Router()
+.get("/", (req: Request, res: Response) => {
+    res.send("Industry and Country list is available")
+})
 .get("/industries", async (req: Request, res: Response) => {
     res.send(await listAnything(IndustriesEntity));
 })
