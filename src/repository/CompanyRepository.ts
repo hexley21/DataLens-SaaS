@@ -30,7 +30,7 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
 
     public async getProfile(user_id: string): Promise<CompanyProfile> {
         return (await AppDataSource.createQueryBuilder()
-            .from("users.company", "c")
+            .from(CompanyEntity, "c")
             .leftJoinAndSelect("c.user", "u")
             .leftJoinAndSelect("c.records", "r", "r.id = c.subscription_id")
             .leftJoinAndSelect("c.industry_obj", "i")
@@ -47,6 +47,9 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
     }
 
 
+    /**
+     * @returns returns id of newly activated company
+     */
     public async activate(user_id: string): Promise<string | never> {
         const user = await AppDataSource.getRepository(UserEntity)
             .findOneBy({id: user_id})
@@ -85,7 +88,7 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
 
                 await transaction.commitTransaction()
 
-                return company!.user_id
+                return company!.id
             }
             catch(e) {
                 await transaction.rollbackTransaction()
@@ -104,6 +107,9 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
         throw Error("This is not a company account");
     }
 
+    /**
+     * @returns string of new generated user id or throws exception
+     */
     public async registerCompany(email: string, company_name: string, industry: string, country: string, password: string): Promise<string | never> {
 
         const transaction = AppDataSource.createQueryRunner();
@@ -115,27 +121,35 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
             const salt = this.encriptionService.getSalt()
             const hash = await this.encriptionService.encryptPassword(password, salt)
     
-            const newAuth = ((await transaction.manager.createQueryBuilder()
+            const auth_id = ((await transaction.manager.createQueryBuilder()
                 .insert()
                 .into(AuthEntity)
                 .values(new AuthEntity(salt, hash))
-                .returning("*")
-                .execute()).generatedMaps as AuthEntity[])[0];
+                .returning("id")
+                .execute()).generatedMaps)[0].id;
 
             const newUser = ((await transaction.manager.createQueryBuilder()
                 .insert()
                 .into(UserEntity)
-                .values(new UserEntity(newAuth.id, email, RoleEnum.COMPANY))
-                .returning("*")
-                .execute()).generatedMaps as UserEntity[])[0];
+                .values(new UserEntity(auth_id, email, RoleEnum.COMPANY))
+                .returning("id, email")
+                .execute()).generatedMaps)[0]
+
+            
 
             await transaction.manager.createQueryBuilder()
                 .insert()
                 .into(CompanyEntity)
-                .values(CompanyEntity.newInstance(newUser.id, company_name, industry, country))    
+                .values(CompanyEntity.newInstance(newUser.id, company_name, industry, country))
                 .execute()
             
-            this.emailService.sendConfirmation(newUser.id, newUser.email)
+                const confirmationLink = this.generateActivationLink(newUser.id)
+
+                this.emailService.sendEmail(
+                    email,
+                    "Employee email confirmation",
+                    `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>`
+                )
             
             await transaction.commitTransaction();
 
@@ -145,7 +159,7 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
             await transaction.rollbackTransaction();
 
             if (e instanceof QueryFailedError) throw createHttpError(400, e.message);
-            else throw createHttpError(500, (e as Error).message);
+            throw createHttpError(500, (e as Error).message);
 
         }
         finally {

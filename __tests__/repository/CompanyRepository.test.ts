@@ -37,7 +37,7 @@ afterEach(async () => {
 
 
 describe("email faults", () => {
-    jest.spyOn(BasicEmailService, "sendConfirmation").mockImplementationOnce(jest.fn(() => { throw new Error("Error") }))
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementationOnce(jest.fn(() => { throw new Error("Error") }))
     
     it("throws error and reverts on failed email", async () => {
         await expect(CompanyRepository.registerCompany(email, companyName, industry, country, password)).rejects.toThrow(createHttpError(500, "Error"))

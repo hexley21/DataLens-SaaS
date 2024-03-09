@@ -27,17 +27,6 @@ export class BasicEmailService implements IEmailService {
         console.log(`Email with subject: ${subject} was sent to ${to}`)
     }
 
-    public sendConfirmation(id: string, to: string): void {
-        const confirmationToken = signObjToken({id: id}, process.env.EMAIL_CONFIRMATION_EXPIRATION!, process.env.EMAIL_ACCESS_TOKEN!);
-        const confirmationLink = `${process.env.HOST}/api/activate/${confirmationToken}`;
-
-        this.sendEmail(
-            to,
-            "Email confirmation",
-            `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>`,
-        );
-    }
-
 };
 
 export default new BasicEmailService()

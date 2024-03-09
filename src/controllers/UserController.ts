@@ -6,8 +6,6 @@ import UserEntity from "../models/entities/users/UserEntity.js";
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
 
 import { signObjToken } from "../common/util/JwtUtils.js";
-import IUserRepository from "../common/interfaces/repository/IUserRepository.js";
-import EmployeeProfile from "../models/entities/joined/EmployeeProfile.js";
 import CompanyProfile from "../models/entities/joined/CompanyProfile.js";
 import CompanyRepository from "../repository/CompanyRepository.js";
 import EmployeeRepository from "../repository/EmployeeRepository.js";
@@ -17,25 +15,17 @@ type NewType = CompanyProfile;
 
 export class UserController extends IController<UserEntity> {
 
-    private companyRepository: IUserRepository<NewType>
-    private employeeRepository: IUserRepository<EmployeeProfile>
-
-    constructor(companyRepository: IUserRepository<CompanyProfile>, employeeRepository: IUserRepository<EmployeeProfile>) {
+    constructor() {
         super(AppDataSource.getRepository(UserEntity), "u");
-        this.companyRepository = companyRepository;
-        this.employeeRepository = employeeRepository;
     }
 
     public async activateUser(user_id: string): Promise<string | never> {
         switch(await this.getRoleById(user_id)){
             case RoleEnum.COMPANY:
-                await this.companyRepository.activate(user_id)
-                break
+                return await CompanyRepository.activate(user_id)
             case RoleEnum.EMPLOYEE:
-                await this.employeeRepository.activate(user_id)
+                return await EmployeeRepository.activate(user_id)
         }
-
-        return user_id;
     }
 
 
@@ -76,4 +66,4 @@ export class UserController extends IController<UserEntity> {
 }
 
 
-export default new UserController(CompanyRepository, EmployeeRepository);
+export default new UserController();
