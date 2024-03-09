@@ -1,10 +1,10 @@
 import AppDataSource from "../data/AppDataSource.js";
 
-import IController from "../common/base/IController.js";
+import IController from "../common/interfaces/IController.js";
 
 import CompanyEntity from "../models/entities/users/CompanyEntity.js";
-import CountriesEnum from "../common/enum/CountriesEnum.js";
-import IndustriesEnum from "../common/enum/IndustriesEnum.js";
+import CountriesEnum from "../models/entities/enum/CountriesEnum.js";
+import IndustriesEnum from "../models/entities/enum/IndustriesEnum.js";
 
 
 export class CompanyController extends IController<CompanyEntity> {

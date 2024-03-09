@@ -6,7 +6,8 @@ export type AppRoutes = {
     register: Router,
     activate: Router,
     login: Router,
-    reactivate: Router
+    reactivate: Router,
+    profile: Router
 };
 
 

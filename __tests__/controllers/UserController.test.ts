@@ -4,7 +4,7 @@ import AuthController from "../../src//controllers/AuthController.js";
 
 import clearDb from "../test-util/DbUtils.js";
 import UserController from "../../src/controllers/UserController.js";
-import RoleEnum from "../../src/common/enum/RoleEnum.js"
+import RoleEnum from "../../src/models/entities/enum/RoleEnum.js"
 
 
 const password = "123";
@@ -38,7 +38,7 @@ it("test user insertion", async () => {
     expect(insertedUser!.id).not.toBeUndefined();
     expect(insertedUser!.auth_id).toBe(newAuth.id)
     expect(insertedUser!.email).toBe(email)
-    expect(insertedUser!.registration_date).not.toBeNull();
+    expect(insertedUser!.registration_date).toBeNull();
     expect(insertedUser!.role).toBe(RoleEnum.COMPANY)
 
 });

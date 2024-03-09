@@ -1,9 +1,9 @@
 import AppDataSource from "../data/AppDataSource.js";
 
-import IController from "../common/base/IController.js";
+import IController from "../common/interfaces/IController.js";
 
 import UserEntity from "../models/entities/users/UserEntity.js";
-import RoleEnum from "../common/enum/RoleEnum.js";
+import RoleEnum from "../models/entities/enum/RoleEnum.js";
 
 import { signObjToken } from "../common/util/JwtUtils.js";
 
@@ -19,7 +19,7 @@ export class UserController extends IController<UserEntity> {
     }
 
     public async isActive(id: string): Promise<Boolean> {
-        return (await this.findBy({id: id}))[0].is_active != null;
+        return (await this.findBy({id: id}))[0].registration_date != null;
     }
 
     public async findByEmail(email?: string): Promise<UserEntity | undefined> {

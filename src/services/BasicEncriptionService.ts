@@ -1,4 +1,4 @@
-import IEncriptionService from "../common/base/IEncriptionService.js";
+import IEncriptionService from "../common/interfaces/IEncriptionService.js";
 
 import crypto from "crypto";
 

@@ -2,7 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, CreateDat
 
 import AuthEntity from "./AuthEntity.js";
 
-import RoleEnum from "../../../common/enum/RoleEnum.js";
+import RoleEnum from "../enum/RoleEnum.js";
 
 
 @Entity({
@@ -11,12 +11,12 @@ import RoleEnum from "../../../common/enum/RoleEnum.js";
 })
 export default class UserEntity {
 
-    constructor(auth_id: string, email: string, role: RoleEnum, is_active?: boolean, ) {
+    constructor(auth_id: string, email: string, role: RoleEnum, registration_date?: Date, ) {
         this.auth_id = auth_id;
         this.email = email;
         this.role = role;
 
-        if (is_active) this.is_active = is_active;
+        if (registration_date) this.registration_date = registration_date;
     }
 
     
@@ -41,8 +41,8 @@ export default class UserEntity {
     @CreateDateColumn({
         type: "date",
         name: "registration_date",
-        nullable: false,
-        default: Date.now()
+        nullable: true,
+        default: new Date()
     })
     public registration_date!: Date;
 
@@ -52,13 +52,6 @@ export default class UserEntity {
         nullable: false
     })
     public role!: RoleEnum;
-
-    @Column({
-        type: "boolean",
-        name: "is_active",
-        nullable: false
-    })
-    public is_active!: boolean;
 
     @OneToOne(() => AuthEntity)
     @JoinColumn({

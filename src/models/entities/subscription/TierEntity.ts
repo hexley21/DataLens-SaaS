@@ -1,13 +1,13 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Relation } from "typeorm";
 
-import BillingRecordEntity from "./BillingRecordEntity.js";
+import RecordEntity from "./RecordEntity.js";
 
 
 @Entity({
     schema: "subscription",
-    name: "plan"
+    name: "tier"
 })
-export default class PlanEntity {
+export default class TierEntity {
 
     constructor(price: number, name: string, file_limit?: number, user_limit?: number, file_price?: number, user_price?: number) {
         this.price = price;
@@ -66,6 +66,6 @@ export default class PlanEntity {
     public user_price?: number;
 
 
-    @OneToMany(() => BillingRecordEntity, (billing_record) => billing_record.plan)
-    public billing_records?: Relation<BillingRecordEntity[]>
+    @OneToMany(() => RecordEntity, (record) => record.tier)
+    public records?: Relation<RecordEntity[]>
 }
