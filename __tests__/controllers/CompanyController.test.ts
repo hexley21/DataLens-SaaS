@@ -1,13 +1,9 @@
 import AppDataSource from "../../src/data/AppDataSource.js";
 
-import RoleEnum from "../../src/models/entities/enum/RoleEnum.js";
-import UserEntity from "../../src/models/entities/users/UserEntity.js";
-
-import AuthController from "../../src/controllers/AuthController.js";
-import UserController from "../../src/controllers/UserController.js";
 import CompanyController from "../../src/controllers/CompanyController.js"
-import AuthEntity from "../../src/models/entities/users/AuthEntity.js";
 import clearDb from "../test-util/DbUtils.js";
+import CompanyRepository from "../../src/repository/CompanyRepository.js";
+import BasicEmailService from "../../src/services/BasicEmailService.js";
 
 
 const password = "123";
@@ -17,21 +13,12 @@ const company_name = "Cool Company";
 const country = "GB";
 const industry = "FIN";
 
-const invalidCountry = "XX"
-const invalidIndustry = "XXX"
-
-let auth: AuthEntity;
-let user: UserEntity;
-
 
 beforeAll(async () => {
     await AppDataSource.initialize();
-});
 
-beforeEach(async () => {
-    auth = await AuthController.insertAuth(password);
-    user = await UserController.insertUser(auth.id, email, RoleEnum.COMPANY);
-})
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }))
+});
 
 afterAll(async () => {
     await AppDataSource.destroy()
@@ -42,21 +29,11 @@ afterEach(async () => {
 });
 
 
-it("test valid insert", async () => {
-    await CompanyController.insertCompany(user.id, company_name, industry, country)
-    const resultCompany = await CompanyController.findOneBy({user_id: user.id})
+it("finds company by user_id", async () => {
+    const user_id = await CompanyRepository.registerCompany(email, company_name, industry, country, password)
+    const company_id = await CompanyRepository.activate(user_id)
 
-    expect(resultCompany?.country).toBe(country)
-    expect(resultCompany?.industry).toBe(industry)
-    expect(resultCompany?.user_id).toBe(user.id)
-})
-
-it("test invalid industry", async () => {
-    await expect(CompanyController.insertCompany(user.id, company_name, invalidIndustry, country)).rejects.toThrow()
-    // const resultCompany = await CompanyController.findOneBy({user_id: user.id})
-})
-
-
-it("test invalid country", async () => {
-    await expect(CompanyController.insertCompany(user.id, company_name, industry, invalidCountry)).rejects.toThrow()
+    const company = await CompanyController.findByUserId(user_id)
+    
+    expect(company.id).toEqual(company_id)
 })

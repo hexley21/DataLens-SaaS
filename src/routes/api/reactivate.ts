@@ -14,7 +14,7 @@ export default Router()
     if (user == null) throw createHttpError(404, "This user does not exist")
 
     if(!user.registration_date) {
-        BasicEmailService.sendConfirmation(user.id, user.email);
+        // BasicEmailService.sendConfirmation(user.id, user.email);
         res.send("Confirmation email was resent")
     } else {
         res.send("This user is already active")

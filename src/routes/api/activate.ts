@@ -17,6 +17,7 @@ export default Router()
         const id = verifyToken(token, process.env.EMAIL_ACCESS_TOKEN!).id
 
         await UserController.activateUser(id)
+
         res.send("Your account has been activated!")
     }
     catch(e) {

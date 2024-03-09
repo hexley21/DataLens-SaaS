@@ -1,10 +1,12 @@
+import createHttpError from "http-errors";
+
 import AppDataSource from "../data/AppDataSource.js";
 
 import IController from "../common/interfaces/IController.js";
 
 import CompanyEntity from "../models/entities/users/CompanyEntity.js";
-import CountriesEnum from "../models/entities/enum/CountriesEnum.js";
-import IndustriesEnum from "../models/entities/enum/IndustriesEnum.js";
+
+import CompanyRepository from "../repository/CompanyRepository.js";
 
 
 export class CompanyController extends IController<CompanyEntity> {
@@ -14,18 +16,13 @@ export class CompanyController extends IController<CompanyEntity> {
     }
 
 
-    public async existsByCompanyName(company_name: string) {
-        return Boolean(await this.countBy({company_name: company_name}))
-    }
+    public async findByUserId(user_id: string): Promise<CompanyEntity | never> {
+        const company = await this.findOneBy({ user_id: user_id });
 
-    public async insertCompany(user_id: string, company_name: string, industry: string, country: string, current_billing_id?: string): Promise<CompanyEntity | never> {
-        return (await this.save(this.initCompany(user_id, company_name, industry, country, current_billing_id)))[0]
-    }
+        if (!company) throw createHttpError(404, "Company not found");
 
-    public initCompany(user_id: string, company_name: string, industry: string, country: string, current_billing_id?: string): CompanyEntity {
-        return CompanyEntity.newInstance(user_id, company_name, industry as IndustriesEnum, country as CountriesEnum, current_billing_id)
+        return company;
     }
-
 
 }
 

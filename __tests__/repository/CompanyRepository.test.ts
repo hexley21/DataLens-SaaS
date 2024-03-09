@@ -24,6 +24,8 @@ const invalidIndustry = "XXX"
 
 beforeAll(async () => {
     await AppDataSource.initialize();
+
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }))
 });
 
 afterAll(async () => {
@@ -35,9 +37,8 @@ afterEach(async () => {
 });
 
 
-
 describe("email faults", () => {
-    jest.spyOn(BasicEmailService, "sendConfirmation").mockImplementationOnce(jest.fn(() => { throw new Error("Error") }))
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementationOnce(jest.fn(() => { throw new Error("Error") }))
     
     it("throws error and reverts on failed email", async () => {
         await expect(CompanyRepository.registerCompany(email, companyName, industry, country, password)).rejects.toThrow(createHttpError(500, "Error"))

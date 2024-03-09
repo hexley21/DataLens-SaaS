@@ -6,6 +6,7 @@ import UserController from "../../src//controllers/UserController.js";
 import clearDb from "../test-util/DbUtils.js";
 import RoleEnum from "../../src/models/entities/enum/RoleEnum.js";
 import createHttpError from "http-errors";
+import BasicEmailService from "../../src/services/BasicEmailService.js";
 
 
 const password = "123";
@@ -17,6 +18,8 @@ const incorrectPassword = "321"
 
 beforeAll(async () => {
     await AppDataSource.initialize();
+
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }))
 });
 
 afterAll(async () => {
