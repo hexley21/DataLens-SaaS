@@ -76,7 +76,7 @@ export class EmployeeRepository extends IUserRepository<EmployeeProfile> {
                 <br>
                 <p>Log in with this password: ${password}</p>
                 <p>You can change this password any time in the settings.</p>
-                `
+                <p>This link is valid for ${process.env.EMAIL_CONFIRMATION_EXPIRATION!}</p>`
             )
 
             await transaction.commitTransaction()

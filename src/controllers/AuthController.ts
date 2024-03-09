@@ -50,6 +50,27 @@ export class AuthController extends IController<AuthEntity> {
         throw createHttpError(401, "Password is incorrect");
     }
 
+    public async updatePassword(user_id?: string, password?: string): Promise<void | never> {
+        if ((!password) || (!user_id)) throw createHttpError(400)
+
+        const { auth_id } = await this.createTypedQueryBuilder(UserEntity, "u")
+        .select("u.auth_id as auth_id")
+        .where("u.id = :id", { id: user_id })
+        .getRawOne()
+
+        const salt = this.encriptionService.getSalt()
+
+        await this.createQueryBuilder("a")
+            .update()
+            .set({
+                hash: await this.encriptionService.encryptPassword(password, salt),
+                salt: salt
+            })
+            .where("id = :id", { id: auth_id })
+            .execute()
+
+    }
+
 }
 
 

@@ -148,7 +148,8 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
                 this.emailService.sendEmail(
                     email,
                     "Employee email confirmation",
-                    `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>`
+                    `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>
+                    <p>This link is valid for ${process.env.EMAIL_CONFIRMATION_EXPIRATION!}</p>`
                 )
             
             await transaction.commitTransaction();
