@@ -27,9 +27,7 @@ export class UserController extends IController<UserEntity> {
     }
 
     public async activateUser(user_id: string): Promise<string | never> {
-        const role = (await this.findOneBy({ id: user_id}))?.role
-
-        switch(role){
+        switch(await this.getRoleById(user_id)){
             case RoleEnum.COMPANY:
                 await this.companyRepository.activate(user_id)
                 break
@@ -38,6 +36,15 @@ export class UserController extends IController<UserEntity> {
         }
 
         return user_id;
+    }
+
+
+    public async getRoleById(user_id: string): Promise<RoleEnum | never> {
+        const user = (await this.findOneBy({ id: user_id}))
+
+        if (!user) throw Error("This user does not exist")
+
+        return user.role
     }
 
     public async existsByEmail(email?: string): Promise<Boolean> {
