@@ -3,6 +3,7 @@ import AppDataSource from "../../src/data/AppDataSource.js";
 import CompanyController from "../../src/controllers/CompanyController.js"
 import clearDb from "../test-util/DbUtils.js";
 import CompanyRepository from "../../src/repository/CompanyRepository.js";
+import BasicEmailService from "../../src/services/BasicEmailService.js";
 
 
 const password = "123";
@@ -15,6 +16,8 @@ const industry = "FIN";
 
 beforeAll(async () => {
     await AppDataSource.initialize();
+
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }))
 });
 
 afterAll(async () => {

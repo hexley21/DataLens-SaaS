@@ -8,6 +8,7 @@ import CompanyController from "../../src/controllers/CompanyController.js";
 import clearDb from "../test-util/DbUtils.js";
 import IndustriesEnum from "../../src/models/entities/enum/IndustriesEnum.js";
 import CountriesEnum from "../../src/models/entities/enum/CountriesEnum.js";
+import BasicEmailService from "../../src/services/BasicEmailService.js";
 
 const email = "test@test.com";
 
@@ -16,6 +17,8 @@ const invalidEmail = "coolEmail";
 
 beforeAll(async () => {
     await AppDataSource.initialize();
+
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }))
 });
 
 afterAll(async () => {
@@ -25,6 +28,7 @@ afterAll(async () => {
 afterEach(async () => {
     await clearDb();
 });
+
 
 
 it("registers on valid data", async () => {

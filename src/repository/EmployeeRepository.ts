@@ -32,7 +32,7 @@ export class EmployeeRepository extends IUserRepository<EmployeeProfile> {
 
 
     /**
-     * @returns returns randomly generated password for first login
+     * @returns returns user_id of newly inserted employee
      */
     public async addUser(email: string, company_id: string, ): Promise<string | never> {
         const transaction = AppDataSource.createQueryRunner()
@@ -64,8 +64,8 @@ export class EmployeeRepository extends IUserRepository<EmployeeProfile> {
                 .insert()
                 .into(EmployeeEntity)
                 .values({ user_id: user_id, company_id: company_id})
-                .returning("id")
-                .execute()).generatedMaps)[0].id
+                .returning("user_id")
+                .execute()).generatedMaps)[0].user_id
 
             const confirmationLink = this.generateActivationLink(user_id)
 
@@ -94,12 +94,19 @@ export class EmployeeRepository extends IUserRepository<EmployeeProfile> {
 
     }
 
-    public async activate(user_id: string): Promise<string> {
-        const user = await AppDataSource.getRepository(UserEntity)
-            .findOneBy({id: user_id})
 
-        if (!user) throw new Error("This employee does not exist")
-        if (user.registration_date) {
+    /**
+     * @returns id of newly activated employee
+     */
+    public async activate(user_id: string): Promise<string> {
+        const { employee_id, registration_date } = await AppDataSource.getRepository(UserEntity).createQueryBuilder("u")
+            .leftJoin(EmployeeEntity, "e", "e.user_id = u.id")
+            .select("e.id as employee_id, u.registration_date as registration_date")
+            .where("u.id = :id", { id: user_id })
+            .getRawOne()
+
+        if (!employee_id) throw new Error("This employee does not exist")
+        if (registration_date) {
             throw createHttpError(409, "This user is already activated")
         }
 
@@ -109,7 +116,7 @@ export class EmployeeRepository extends IUserRepository<EmployeeProfile> {
             .where({ id: user_id})
             .execute()
 
-        return user_id
+        return employee_id
     }
 
 }

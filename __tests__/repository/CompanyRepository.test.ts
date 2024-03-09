@@ -24,6 +24,8 @@ const invalidIndustry = "XXX"
 
 beforeAll(async () => {
     await AppDataSource.initialize();
+
+    jest.spyOn(BasicEmailService, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }))
 });
 
 afterAll(async () => {
@@ -33,7 +35,6 @@ afterAll(async () => {
 afterEach(async () => {
     await clearDb();
 });
-
 
 
 describe("email faults", () => {

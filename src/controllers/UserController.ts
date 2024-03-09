@@ -29,12 +29,17 @@ export class UserController extends IController<UserEntity> {
     }
 
 
+    public async deleteUser(user_id: string): Promise<void | never> {
+        if(await this.getRoleById(user_id) === RoleEnum.EMPLOYEE) await this.deleteBy({ id: user_id})
+    }
+
     public async getRoleById(user_id: string): Promise<RoleEnum | never> {
-        const user = (await this.findOneBy({ id: user_id}))
+        const { role } = await this.createQueryBuilder("u")
+            .select("role")
+            .where({ id: user_id})
+            .getRawOne()
 
-        if (!user) throw Error("This user does not exist")
-
-        return user.role
+        return role
     }
 
     public async existsByEmail(email?: string): Promise<Boolean> {
