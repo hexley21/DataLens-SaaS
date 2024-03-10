@@ -38,7 +38,7 @@ export class AuthController extends IController<AuthEntity> {
             .leftJoinAndSelect("u.auth", "a")
             .select("u.id as id, a.hash as hash, a.salt as salt, u.registration_date as registration_date")
             .where({ email: email })
-            .getRawOne())
+            .getRawOne() as { id: string, hash: string, salt: string, registration_date: Date})
         
             
         if (!user) throw createHttpError(401, "Account doesn't exist");
@@ -53,21 +53,30 @@ export class AuthController extends IController<AuthEntity> {
         throw createHttpError(401, "Password is incorrect");
     }
 
-    public async updatePassword(user_id?: string, password?: string): Promise<void | never> {
-        if ((!password) || (!user_id)) throw createHttpError(400)
+    public async updatePassword(user_id?: string, oldPassword?: string, newPassword?: string): Promise<void | never> {
+        if ((!oldPassword) || (!newPassword) || (!user_id)) throw new TypeError("Invalid Arguments")
 
-        const { auth_id } = await this.createTypedQueryBuilder(UserEntity, "u")
-        .select("u.auth_id as auth_id")
-        .where("u.id = :id", { id: user_id })
-        .getRawOne()
+        const { auth_id, old_hash, old_salt } = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
+            .leftJoinAndSelect("u.auth", "a")
+            .select("a.id as auth_id, a.hash as old_hash, a.salt as old_salt")
+            .where("u.id = :id", { id: user_id })
+            .getRawOne() as { auth_id: string, old_hash: string, old_salt: string })
 
-        const salt = this.encriptionService.getSalt()
+        console.log(auth_id, old_hash, old_salt)
+
+        const encryptedOld = await this.encriptionService.encryptPassword(oldPassword, old_salt)
+
+        console.log(encryptedOld)
+        
+        if (encryptedOld != old_hash) throw Error("old password does not match")
+
+        const newSalt = this.encriptionService.getSalt()
 
         await this.createQueryBuilder("a")
             .update()
             .set({
-                hash: await this.encriptionService.encryptPassword(password, salt),
-                salt: salt
+                hash: await this.encriptionService.encryptPassword(newPassword, newSalt),
+                salt: newSalt
             })
             .where("id = :id", { id: auth_id })
             .execute()
