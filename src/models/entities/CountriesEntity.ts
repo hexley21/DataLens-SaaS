@@ -10,20 +10,10 @@ export default class CountriesEntity {
     }
 
 
-    @PrimaryColumn({
-        type: "varchar",
-        name: "id",
-        length: 2,
-        nullable: false
-    })
+    @PrimaryColumn({ type: "varchar", name: "id", length: 2, nullable: false })
     public id!: string
 
-    @Column({
-        type: "varchar",
-        name: "name",
-        length: 64,
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "name", length: 64, nullable: false })
     public name!: string
 
 }

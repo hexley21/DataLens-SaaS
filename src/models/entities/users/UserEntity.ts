@@ -22,34 +22,16 @@ export default class UserEntity {
     @PrimaryGeneratedColumn("uuid")
     public id!: string;
 
-    @Column({
-        type: "uuid",
-        name: "auth_id",
-        nullable: false,
-    })
+    @Column({ type: "uuid", name: "auth_id", nullable: false })
     public auth_id!: string;
 
-    @Column({
-        type: "varchar",
-        name: "email",
-        length: 255,
-        nullable: false,
-    })
+    @Column({ type: "varchar", name: "email", length: 255, nullable: false })
     public email!: string;
 
-    @CreateDateColumn({
-        type: "date",
-        name: "registration_date",
-        nullable: true,
-        default: new Date()
-    })
+    @CreateDateColumn({ type: "date", name: "registration_date", nullable: true, default: "NOW()" })
     public registration_date?: Date;
 
-    @Column({
-        type: "enum",
-        enum: RoleEnum,
-        nullable: false
-    })
+    @Column({ type: "enum", enum: RoleEnum, nullable: false })
     public role!: RoleEnum;
 
     @OneToOne(() => AuthEntity)

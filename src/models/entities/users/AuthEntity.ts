@@ -14,20 +14,10 @@ export default class AuthEntity {
     @PrimaryGeneratedColumn("uuid")
     public id!: string;
 
-    @Column({
-        type: "varchar",
-        name: "hash",
-        length: 64,
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "hash", length: 64, nullable: false })
     public hash!: string;
 
-    @Column({
-        type: "varchar",
-        name: "salt",
-        length: 64,
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "salt", length: 64, nullable: false })
     public salt!: string;
 
 }

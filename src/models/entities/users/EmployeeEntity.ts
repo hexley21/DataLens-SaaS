@@ -20,18 +20,10 @@ export default class EmployeeEntity {
     @PrimaryGeneratedColumn("uuid")
     public id!: string;
 
-    @Column({
-        type: "uuid",
-        name: "user_id",
-        nullable: false
-    })
+    @Column({ type: "uuid", name: "user_id", nullable: false })
     public user_id!: string;
 
-    @Column({
-        type: "uuid",
-        name: "company_id",
-        nullable: false
-    })
+    @Column({ type: "uuid", name: "company_id", nullable: false})
     public company_id!: string;
 
 

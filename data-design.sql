@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE SCHEMA IF NOT EXISTS USERS;
 CREATE SCHEMA IF NOT EXISTS SUBSCRIPTION;
-CREATE SCHEMA IF NOT EXISTS FILE;
+CREATE SCHEMA IF NOT EXISTS FILES;
 
 
 DO $$
@@ -75,6 +75,23 @@ CREATE TABLE IF NOT EXISTS subscription.record(
 );
 
 ALTER TABLE USERS.COMPANY ADD COLUMN IF NOT EXISTS subscription_id UUID REFERENCES subscription.record(id) ON DELETE RESTRICT;
+
+
+CREATE TABLE IF NOT EXISTS files.file (
+    id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+    company_id UUID REFERENCES users.company(id) ON DELETE SET NULL,
+    employee_id UUID REFERENCES users.employee(id) ON DELETE SET NULL,
+    file_name VARCHAR(64) NOT NULL,
+    file_path VARCHAR(64) NOT NULL,
+    upload_date DATE NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS files.access (
+    id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+    file_id UUID REFERENCES files.file(id) NOT NULL,
+    employee_id UUID REFERENCES users.employee(id) NOT NULL
+);
+
 
 INSERT INTO COUNTRIES ("id", "name") VALUES (E'AF', E'Afghanistan');
 INSERT INTO COUNTRIES ("id", "name") VALUES (E'AX', E'Åland Islands');

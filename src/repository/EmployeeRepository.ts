@@ -16,7 +16,6 @@ import RoleEnum from "../models/entities/enum/RoleEnum.js";
 import EmployeeEntity from "../models/entities/users/EmployeeEntity.js";
 import UserEntity from "../models/entities/users/UserEntity.js";
 import AuthEntity from "../models/entities/users/AuthEntity.js";
-import { rejects } from "assert";
 
 
 export class EmployeeRepository extends IUserRepository<EmployeeEntity> {
