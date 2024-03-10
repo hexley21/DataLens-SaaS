@@ -34,19 +34,22 @@ export class AuthController extends IController<AuthEntity> {
     public async authenticateUser(email?: string, password?: string): Promise<string> {
         if (!email || !password) throw createHttpError(400, "Email and Password must be present")
 
-        const { hash, id, salt, registration_date } = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
+        const user = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
             .leftJoinAndSelect("u.auth", "a")
-            .select("u.id, a.hash, a.salt, u.registration_date")
+            .select("u.id as id, a.hash as hash, a.salt as salt, u.registration_date as registration_date")
             .where({ email: email })
             .getRawOne())
         
             
-        if (!id) throw createHttpError(401, "Account doesn't exist");
+        if (!user) throw createHttpError(401, "Account doesn't exist");
 
-        if (!registration_date) throw createHttpError(401, "Account is not activated")
+        if (!user.registration_date) throw createHttpError(401, "Account is not activated")
     
-        if (hash === await this.encriptionService.encryptPassword(password, salt)) return id;
+        const encripted = await this.encriptionService.encryptPassword(password, user.salt)
+        if (user.hash === encripted) return user.id;
     
+
+        console.log(user.hash, user.salt, encripted)
         throw createHttpError(401, "Password is incorrect");
     }
 

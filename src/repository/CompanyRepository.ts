@@ -10,10 +10,8 @@ import RecordEntity from "../models/entities/subscription/RecordEntity.js";
 import TiersEnum from "../models/entities/enum/TiersEnum.js";
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
 
-import CompanyProfile from "../models/entities/joined/CompanyProfile.js";
 import EmployeeProfile from "../models/entities/joined/EmployeeProfile.js";
 
-import createHttpError from "http-errors";
 import AuthEntity from "../models/entities/users/AuthEntity.js";
 import IEncriptionService from "../common/interfaces/IEncriptionService.js";
 import IEmailService from "../common/interfaces/IEmailService.js";
@@ -21,14 +19,14 @@ import BasicEncriptionService from "../services/BasicEncriptionService.js";
 import BasicEmailService from "../services/BasicEmailService.js";
 
 
-export class CompanyRepository extends IUserRepository<CompanyProfile> {
+export class CompanyRepository extends IUserRepository<CompanyEntity> {
 
     constructor(encriptionService: IEncriptionService, emailService: IEmailService) {
         super(encriptionService, emailService)
     }
     
 
-    public async getProfile(user_id: string): Promise<CompanyProfile> {
+    public async getProfile<CompanyProfile>(user_id: string): Promise<CompanyProfile> {
         return (await AppDataSource.createQueryBuilder()
             .from(CompanyEntity, "c")
             .leftJoinAndSelect("c.user", "u")
@@ -46,6 +44,20 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
         throw new Error("Method not implemented.");
     }
 
+    public async findByEmail(email: string): Promise<CompanyEntity | null> {
+        return await AppDataSource.createQueryBuilder(CompanyEntity, "c")
+            .leftJoinAndSelect("c.user", "u")
+            .select(
+                `c.id as id,
+                c.user_id as user_id,
+                c.subscription_id as subscription_id
+                c.company_name as company_name
+                c.industry as industry,
+                c.country as country`)
+            .where("u.email = :email", { email: email })
+            .getOne()
+    }
+
 
     /**
      * @returns returns id of newly activated company
@@ -55,9 +67,7 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
             .findOneBy({id: user_id})
 
         if (!user) throw new Error("This company does not exist")
-        if (user.registration_date) {
-            throw createHttpError(409, "This user is already activated")
-        }
+        if (user.registration_date) throw new Error("This Company is already activated")
 
         if (user!.role === RoleEnum.COMPANY) {
             const transaction = AppDataSource.createQueryRunner();
@@ -92,12 +102,7 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
             }
             catch(e) {
                 await transaction.rollbackTransaction()
-                if (e instanceof QueryFailedError) {
-                    throw createHttpError(400, e.message);
-                }
-                else {
-                    throw createHttpError(500, (e as Error).message);
-                }
+                throw e
             }
             finally {
                 await transaction.release();
@@ -110,7 +115,7 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
     /**
      * @returns string of new generated user id or throws exception
      */
-    public async registerCompany(email: string, company_name: string, industry: string, country: string, password: string): Promise<string | never> {
+    public async registerCompany(email?: string, company_name?: string, industry?: string, country?: string, password?: string): Promise<string | never> {
 
         const transaction = AppDataSource.createQueryRunner();
 
@@ -118,13 +123,15 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
 
         try {
 
+            if (await this.findUserByEmail(email)) throw Error("This user already exist")
+
             const salt = this.encriptionService.getSalt()
             const hash = await this.encriptionService.encryptPassword(password, salt)
     
             const auth_id = ((await transaction.manager.createQueryBuilder()
                 .insert()
                 .into(AuthEntity)
-                .values(new AuthEntity(salt, hash))
+                .values(new AuthEntity(hash, salt))
                 .returning("id")
                 .execute()).generatedMaps)[0].id;
 
@@ -135,22 +142,13 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
                 .returning("id, email")
                 .execute()).generatedMaps)[0]
 
-            
-
             await transaction.manager.createQueryBuilder()
                 .insert()
                 .into(CompanyEntity)
                 .values(CompanyEntity.newInstance(newUser.id, company_name, industry, country))
                 .execute()
             
-                const confirmationLink = this.generateActivationLink(newUser.id)
-
-                this.emailService.sendEmail(
-                    email,
-                    "Employee email confirmation",
-                    `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>
-                    <p>This link is valid for ${process.env.EMAIL_CONFIRMATION_EXPIRATION!}</p>`
-                )
+            this.sendActivation(newUser.id, newUser.email)
             
             await transaction.commitTransaction();
 
@@ -158,14 +156,23 @@ export class CompanyRepository extends IUserRepository<CompanyProfile> {
         }
         catch(e: any) {
             await transaction.rollbackTransaction();
-
-            if (e instanceof QueryFailedError) throw createHttpError(400, e.message);
-            throw createHttpError(500, (e as Error).message);
-
+            throw e
         }
         finally {
             await transaction.release()
         }
+    }
+
+    public sendActivation(user_id?: string, email?: string, password?: string): void {
+
+        const confirmationLink = this.generateActivationLink(user_id)
+
+        this.emailService.sendEmail(
+            email!,
+            "Employee email confirmation",
+            `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>
+            <p>This link is valid for ${process.env.EMAIL_CONFIRMATION_EXPIRATION!}</p>`
+        )
     }
 
 }

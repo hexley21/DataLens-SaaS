@@ -11,11 +11,10 @@ import RoleEnum from "../enum/RoleEnum.js";
 })
 export default class UserEntity {
 
-    constructor(auth_id: string, email: string, role: RoleEnum, registration_date?: Date, ) {
-        this.auth_id = auth_id;
-        this.email = email;
-        this.role = role;
-
+    constructor(auth_id?: string, email?: string, role?: RoleEnum, registration_date?: Date, ) {
+        if (auth_id) this.auth_id = auth_id;
+        if (email) this.email = email;
+        if (role) this.role = role;
         if (registration_date) this.registration_date = registration_date;
     }
 

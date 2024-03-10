@@ -4,8 +4,7 @@ import Router from "express-promise-router";
 import createHttpError from "http-errors";
 
 import RegisterController from "../../controllers/RegisterController.js";
-
-import { isCountryValid, isIndustryValid } from "../../common/util/ValidationUtils.js";
+import UserController from "../../controllers/UserController.js";
 
 
 export default Router()
@@ -18,12 +17,16 @@ export default Router()
         password?: string
     };
 
+    const user = await UserController.findByEmail(email)
 
-    if (!email) throw createHttpError(400, "Email is not present");
-    if (!company_name) throw createHttpError(400, "Company name is not present");
-    if (!password) throw createHttpError(400, "Password is not present")
-    if (!isCountryValid(country)) throw createHttpError(400, "Invalid country, see list of countris at /list/countries");
-    if (!isIndustryValid(industry)) throw createHttpError(400, "Invalid industry, see list of industries at /list/industries");
+    if (user){
+        if (!user.registration_date) {
+            RegisterController.sendActivation(user.email)
+            throw createHttpError(403, "Company already exists but not confirmed, confirmation email was resent")
+        }
+
+        throw createHttpError(403, "Company already registered")
+    }
 
     await RegisterController.registerCompany(email, company_name, industry!, country!, password)
 
