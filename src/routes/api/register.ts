@@ -5,6 +5,8 @@ import createHttpError from "http-errors";
 
 import RegisterController from "../../controllers/RegisterController.js";
 import UserController from "../../controllers/UserController.js";
+import RoleEnum from "../../models/entities/enum/RoleEnum.js";
+import { QueryFailedError } from "typeorm";
 
 
 export default Router()
@@ -25,10 +27,21 @@ export default Router()
             throw createHttpError(403, "Company already exists but not confirmed, confirmation email was resent")
         }
 
+        if (user.role === RoleEnum.EMPLOYEE) throw createHttpError(403, "This email belongs to employee of other company")
+
         throw createHttpError(403, "Company already registered")
     }
 
-    await RegisterController.registerCompany(email, company_name, industry!, country!, password)
+    try {
+        await RegisterController.registerCompany(email, company_name, industry!, country!, password)
+    }
+    catch (e) {
+        if (e instanceof QueryFailedError) throw createHttpError(400,
+            "Invalid arguments: this error occurs when email, industry or country is invalid, or when the company name is taken")
+
+        if (e instanceof TypeError) throw createHttpError(400, e.message)
+        throw createHttpError(500, (e as Error).message)
+    }
 
     res.send(`${company_name} Confirmation email was sent to: ${email}`)
 })

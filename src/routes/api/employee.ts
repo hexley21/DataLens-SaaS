@@ -38,7 +38,7 @@ export default Router()
         }
         catch(e) {
             if (e instanceof QueryFailedError) throw createHttpError(400, "Invalid arguments!")
-            throw createHttpError(500, (e as Error))
+            throw createHttpError(500, (e as Error).message)
         }
 
         res.send(`The invitation email was sent to: ${email}`);
