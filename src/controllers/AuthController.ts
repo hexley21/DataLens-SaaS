@@ -34,20 +34,53 @@ export class AuthController extends IController<AuthEntity> {
     public async authenticateUser(email?: string, password?: string): Promise<string> {
         if (!email || !password) throw createHttpError(400, "Email and Password must be present")
 
-        const { hash, id, salt, registration_date } = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
+        const user = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
             .leftJoinAndSelect("u.auth", "a")
-            .select("u.id, a.hash, a.salt, u.registration_date")
+            .select("u.id as id, a.hash as hash, a.salt as salt, u.registration_date as registration_date")
             .where({ email: email })
-            .getRawOne())
+            .getRawOne() as { id: string, hash: string, salt: string, registration_date: Date})
         
             
-        if (!id) throw createHttpError(401, "Account doesn't exist");
+        if (!user) throw createHttpError(401, "Account doesn't exist");
 
-        if (!registration_date) throw createHttpError(401, "Account is not activated")
+        if (!user.registration_date) throw createHttpError(401, "Account is not activated")
     
-        if (hash === await this.encriptionService.encryptPassword(password, salt)) return id;
+        const encripted = await this.encriptionService.encryptPassword(password, user.salt)
+        if (user.hash === encripted) return user.id;
     
+
+        console.log(user.hash, user.salt, encripted)
         throw createHttpError(401, "Password is incorrect");
+    }
+
+    public async updatePassword(user_id?: string, oldPassword?: string, newPassword?: string): Promise<void | never> {
+        if ((!oldPassword) || (!newPassword) || (!user_id)) throw new TypeError("Invalid Arguments")
+
+        const { auth_id, old_hash, old_salt } = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
+            .leftJoinAndSelect("u.auth", "a")
+            .select("a.id as auth_id, a.hash as old_hash, a.salt as old_salt")
+            .where("u.id = :id", { id: user_id })
+            .getRawOne() as { auth_id: string, old_hash: string, old_salt: string })
+
+        console.log(auth_id, old_hash, old_salt)
+
+        const encryptedOld = await this.encriptionService.encryptPassword(oldPassword, old_salt)
+
+        console.log(encryptedOld)
+        
+        if (encryptedOld != old_hash) throw Error("old password does not match")
+
+        const newSalt = this.encriptionService.getSalt()
+
+        await this.createQueryBuilder("a")
+            .update()
+            .set({
+                hash: await this.encriptionService.encryptPassword(newPassword, newSalt),
+                salt: newSalt
+            })
+            .where("id = :id", { id: auth_id })
+            .execute()
+
     }
 
 }

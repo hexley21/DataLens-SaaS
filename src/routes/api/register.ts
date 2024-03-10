@@ -4,8 +4,9 @@ import Router from "express-promise-router";
 import createHttpError from "http-errors";
 
 import RegisterController from "../../controllers/RegisterController.js";
-
-import { isCountryValid, isIndustryValid } from "../../common/util/ValidationUtils.js";
+import UserController from "../../controllers/UserController.js";
+import RoleEnum from "../../models/entities/enum/RoleEnum.js";
+import { QueryFailedError } from "typeorm";
 
 
 export default Router()
@@ -18,14 +19,29 @@ export default Router()
         password?: string
     };
 
+    const user = await UserController.findByEmail(email)
 
-    if (!email) throw createHttpError(400, "Email is not present");
-    if (!company_name) throw createHttpError(400, "Company name is not present");
-    if (!password) throw createHttpError(400, "Password is not present")
-    if (!isCountryValid(country)) throw createHttpError(400, "Invalid country, see list of countris at /list/countries");
-    if (!isIndustryValid(industry)) throw createHttpError(400, "Invalid industry, see list of industries at /list/industries");
+    if (user){
+        if (!user.registration_date) {
+            RegisterController.sendActivation(user.email)
+            throw createHttpError(403, "Company already exists but not confirmed, confirmation email was resent")
+        }
 
-    await RegisterController.registerCompany(email, company_name, industry!, country!, password)
+        if (user.role === RoleEnum.EMPLOYEE) throw createHttpError(403, "This email belongs to employee of other company")
+
+        throw createHttpError(403, "Company already registered")
+    }
+
+    try {
+        await RegisterController.registerCompany(email, company_name, industry!, country!, password)
+    }
+    catch (e) {
+        if (e instanceof QueryFailedError) throw createHttpError(400,
+            "Invalid arguments: this error occurs when email, industry or country is invalid, or when the company name is taken")
+
+        if (e instanceof TypeError) throw createHttpError(400, e.message)
+        throw createHttpError(500, (e as Error).message)
+    }
 
     res.send(`${company_name} Confirmation email was sent to: ${email}`)
 })

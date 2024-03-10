@@ -8,8 +8,8 @@ export class BasicEncriptionService implements IEncriptionService {
 
 
     public async encryptPassword(password?: string, salt?: string, length?: number | undefined): Promise<string> | never {
-        if (!password) throw Error("Null password")
-        if (password.includes(" ")) throw Error("Password includes spaces")
+        if (!password) throw TypeError("Null password")
+        if (password.includes(" ")) throw TypeError("Password includes spaces")
 
         return new Promise<string>((resolve, reject) => {
             crypto.pbkdf2(

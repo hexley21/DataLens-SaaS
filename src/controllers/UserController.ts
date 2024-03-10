@@ -6,12 +6,9 @@ import UserEntity from "../models/entities/users/UserEntity.js";
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
 
 import { signObjToken } from "../common/util/JwtUtils.js";
-import CompanyProfile from "../models/entities/joined/CompanyProfile.js";
 import CompanyRepository from "../repository/CompanyRepository.js";
 import EmployeeRepository from "../repository/EmployeeRepository.js";
 
-
-type NewType = CompanyProfile;
 
 export class UserController extends IController<UserEntity> {
 
@@ -20,26 +17,42 @@ export class UserController extends IController<UserEntity> {
     }
 
     public async activateUser(user_id: string): Promise<string | never> {
-        switch(await this.getRoleById(user_id)){
+        const role = await this.getRoleById(user_id)
+        switch(role){
             case RoleEnum.COMPANY:
                 return await CompanyRepository.activate(user_id)
             case RoleEnum.EMPLOYEE:
                 return await EmployeeRepository.activate(user_id)
         }
+
+        throw Error("This user does not exists")
     }
 
 
     public async deleteUser(user_id: string): Promise<void | never> {
-        if(await this.getRoleById(user_id) === RoleEnum.EMPLOYEE) await this.deleteBy({ id: user_id})
+        if(await this.getRoleById(user_id) === RoleEnum.EMPLOYEE) {
+            await this.deleteBy({ id: user_id})
+            return;
+        }
+
+        throw Error("User not found")
     }
 
-    public async getRoleById(user_id: string): Promise<RoleEnum | never> {
-        const { role } = await this.createQueryBuilder("u")
+    public async findById(user_id: string): Promise<UserEntity | null> {
+        return await this.createQueryBuilder("u")
+            .select()
+            .where({ id: user_id})
+            .getOne()
+    }
+
+    public async getRoleById(user_id: string): Promise<RoleEnum | null> {
+        const role = await this.createQueryBuilder("u")
             .select("role")
             .where({ id: user_id})
             .getRawOne()
 
-        return role
+
+        return role ? role.role : null
     }
 
     public async existsByEmail(email?: string): Promise<Boolean> {

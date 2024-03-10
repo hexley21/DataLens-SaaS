@@ -35,5 +35,6 @@ it("finds company by user_id", async () => {
 
     const company = await CompanyController.findByUserId(user_id)
     
-    expect(company.id).toEqual(company_id)
+    expect(company).not.toBeNull()
+    expect(company!.id).toEqual(company_id)
 })

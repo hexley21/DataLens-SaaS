@@ -6,7 +6,6 @@ import RecordEntity from "../subscription/RecordEntity.js";
 
 import CountriesEntity from "../CountriesEntity.js";
 import UserEntity from "./UserEntity.js";
-import { isCountryValid, isIndustryValid } from "../../../common/util/ValidationUtils.js";
 
 
 @Entity({
@@ -15,18 +14,16 @@ import { isCountryValid, isIndustryValid } from "../../../common/util/Validation
 })
 export default class CompanyEntity {
 
-    static newInstance(user_id: string, company_name: string, industry: string, country: string, subscription_id?: string): CompanyEntity {
+    static newInstance(user_id: string, company_name?: string, industry?: string, country?: string, subscription_id?: string): CompanyEntity {
         const company = new CompanyEntity();
 
         company.user_id = user_id;
-        company.company_name = company_name;
+        company.company_name = company_name!;
 
-        if (isCountryValid(country)) company.country = country;
-        else throw Error("Invalid Country")
-        if (isIndustryValid(industry)) company.industry = industry;
-        else throw Error("Invalid industry")
+        company.country = country!;
+        company.industry = industry!;
         
-        if (subscription_id) company.subscription_id = subscription_id;
+        company.subscription_id = subscription_id;
 
         return company;
     }
@@ -67,9 +64,9 @@ export default class CompanyEntity {
     @Column({
         type: "varchar",
         name: "country",
-        nullable: true
+        nullable: false
     })
-    public country?: string;
+    public country!: string;
 
     @ManyToOne(() => IndustriesEntity)
     @JoinColumn({

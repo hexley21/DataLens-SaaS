@@ -37,7 +37,8 @@ it("registers on valid data", async () => {
 
     const company = await CompanyController.findByUserId(user_id);
 
-    const result = await EmployeeRepository.addUser(email, company.id)
+    expect(company).not.toBeNull()
+    const result = await EmployeeRepository.addUser(email, company!.id)
 
     expect(result).not.toBeFalsy()
     expect(typeof result).toBe("string")

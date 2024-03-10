@@ -2,9 +2,9 @@ import { Request, Response } from "express";
 import Router from "express-promise-router";
 
 import UserController from "../../controllers/UserController.js";
-import BasicEmailService from "../../services/BasicEmailService.js";
 
 import createHttpError from "http-errors";
+import RegisterController from "../../controllers/RegisterController.js";
 
 
 export default Router()
@@ -14,7 +14,7 @@ export default Router()
     if (user == null) throw createHttpError(404, "This user does not exist")
 
     if(!user.registration_date) {
-        // BasicEmailService.sendConfirmation(user.id, user.email);
+        await RegisterController.sendActivation(req.params.email)
         res.send("Confirmation email was resent")
     } else {
         res.send("This user is already active")

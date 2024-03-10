@@ -16,12 +16,8 @@ export class CompanyController extends IController<CompanyEntity> {
     }
 
 
-    public async findByUserId(user_id: string): Promise<CompanyEntity | never> {
-        const company = await this.findOneBy({ user_id: user_id });
-
-        if (!company) throw createHttpError(404, "Company not found");
-
-        return company;
+    public async findByUserId(user_id: string): Promise<CompanyEntity | null> {
+        return await this.findOneBy({ user_id: user_id });
     }
 
 }
