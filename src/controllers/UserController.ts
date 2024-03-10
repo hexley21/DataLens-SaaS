@@ -30,12 +30,7 @@ export class UserController extends IController<UserEntity> {
 
 
     public async deleteUser(user_id: string): Promise<void | never> {
-        if(await this.getRoleById(user_id) === RoleEnum.EMPLOYEE) {
-            await this.deleteBy({ id: user_id})
-            return;
-        }
-
-        throw Error("User not found")
+        await this.deleteBy({ id: user_id})
     }
 
     public async findById(user_id: string): Promise<UserEntity | null> {

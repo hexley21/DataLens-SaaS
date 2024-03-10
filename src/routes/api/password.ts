@@ -7,7 +7,7 @@ import createHttpError from "http-errors";
 
 export default Router()
 .patch("/", authentication, async (req: Request, res: Response) => {
-    const { old_password, new_password } = req.query as { old_password: string, new_password: string }
+    const { old_password, new_password } = req.query as { old_password?: string, new_password?: string }
 
     try {
         await AuthController.updatePassword(res.locals.user_id, old_password, new_password)

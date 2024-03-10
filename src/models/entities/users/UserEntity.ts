@@ -43,7 +43,7 @@ export default class UserEntity {
         nullable: true,
         default: new Date()
     })
-    public registration_date!: Date;
+    public registration_date?: Date;
 
     @Column({
         type: "enum",

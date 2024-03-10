@@ -148,7 +148,7 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
                 .values(CompanyEntity.newInstance(newUser.id, company_name, industry, country))
                 .execute()
             
-            this.sendActivation(newUser.id, newUser.email)
+            this.sendActivation(newUser.id, email)
             
             await transaction.commitTransaction();
 
@@ -169,7 +169,7 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
 
         this.emailService.sendEmail(
             email!,
-            "Employee email confirmation",
+            "Company email confirmation",
             `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>
             <p>This link is valid for ${process.env.EMAIL_CONFIRMATION_EXPIRATION!}</p>`
         )
