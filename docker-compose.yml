@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  app:
+    container_name: datalens-node
+    build: .
+    ports:
+      - 8080:8080
+    volumes:
+      - ./processed_files:/usr/src/app/processed_files
+    depends_on:
+      - db
+    links:
+      - db
+  db:
+    container_name: datalens-db
+    restart: always
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: datalens
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - ./data-design.sql:/docker-entrypoint-initdb.d/data-design.sql
