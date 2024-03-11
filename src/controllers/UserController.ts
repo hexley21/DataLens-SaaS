@@ -5,15 +5,23 @@ import IController from "../common/interfaces/IController.js";
 import UserEntity from "../models/entities/users/UserEntity.js";
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
 
-import { signObjToken } from "../common/util/JwtUtils.js";
 import CompanyRepository from "../repository/CompanyRepository.js";
 import EmployeeRepository from "../repository/EmployeeRepository.js";
+import UserRepository from "../repository/UserRepository.js";
+import BasicEncriptionService from "../services/BasicEncriptionService.js";
+import IEncriptionService from "../common/interfaces/IEncriptionService.js";
 
 
 export class UserController extends IController<UserEntity> {
 
+    private userRepository
+    private encriptionService: IEncriptionService;
+
+
     constructor() {
         super(AppDataSource.getRepository(UserEntity), "u");
+        this.userRepository = UserRepository;
+        this.encriptionService = BasicEncriptionService;
     }
 
     public async activateUser(user_id: string): Promise<string | never> {
@@ -26,6 +34,36 @@ export class UserController extends IController<UserEntity> {
         }
 
         throw Error("This user does not exists")
+    }
+
+    public async authenticateUser(email?: string, password?: string): Promise<Boolean> {
+        if (!email || !password) return false
+
+        const user = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
+            .select("id, hash, salt")
+            .where({ email: email })
+            .getRawOne() as { hash: string, salt: string })
+        
+    
+        const encripted = await this.encriptionService.encryptPassword(password, user.salt)
+        return user.hash === encripted;
+    }
+
+
+    public async updatePassword(user_id?: string, oldPassword?: string, newPassword?: string): Promise<void | never> {
+        if ((!oldPassword) || (!newPassword) || (!user_id)) throw new Error("Invalid Arguments")
+
+        const { old_hash, old_salt } = (await this.createQueryBuilder("u")
+            .select("hash as old_hash, old_salt")
+            .where("u.id = :id", { id: user_id })
+            .getRawOne() as { old_hash: string, old_salt: string })
+
+        const encryptedOld = await this.encriptionService.encryptPassword(oldPassword, old_salt)
+
+        
+        if (encryptedOld != old_hash) throw Error("old password does not match")
+
+        await this.userRepository.changePassword(user_id, newPassword)
     }
 
 
@@ -50,30 +88,12 @@ export class UserController extends IController<UserEntity> {
         return role ? role.role : null
     }
 
-    public async existsByEmail(email?: string): Promise<Boolean> {
-        return Boolean(await this.countBy({email: email }));
-    }
-
     public async isActive(id: string): Promise<Boolean> {
-        return (await this.findBy({id: id}))[0].registration_date != null;
+        return await this.userRepository.isActive(id)
     }
 
-    public async findByEmail(email?: string): Promise<UserEntity | undefined> {
-        return (await this.findBy({email: email }))[0];
-    }
-
-    public async insertUser(auth_id: string, email: string, role: RoleEnum, checkEmail?: boolean): Promise<UserEntity | never> {
-        if (!checkEmail) this.existsByEmail(email)
-
-        return (await this.save(this.initUser(auth_id, email, role)))[0]
-    }
-
-    public signUserToken(id: string): string {
-        return signObjToken({id: id})
-    }
-
-    public initUser(auth_id: string, email: string, role: RoleEnum, checkEmail?: boolean): UserEntity {
-        return new UserEntity(auth_id, email, role);
+    public async findByEmail(email?: string): Promise<UserEntity | null> {
+        return await this.userRepository.findByEmail(email)
     }
 
 }

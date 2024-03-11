@@ -22,10 +22,10 @@ export class RegisterController {
 
         switch (user.role) {
             case RoleEnum.COMPANY:
-                CompanyRepository.sendActivation(user.id, email)
+                await CompanyRepository.sendActivationEmail(user.id, email)
                 break;
             case RoleEnum.EMPLOYEE:
-                EmployeeRepository.sendActivation(user.id, email)
+                await EmployeeRepository.sendActivationEmail(user.id, email)
                 break;
         }
     }

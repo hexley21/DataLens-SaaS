@@ -35,7 +35,6 @@ export default class CompanyEntity {
     @Column({ type: "uuid", name: "user_id", nullable: false })
     public user_id!: string;
 
-
     @Column({ type: "uuid", name: "subscription_id", nullable: true })
     public subscription_id?: string;
 

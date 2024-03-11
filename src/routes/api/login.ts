@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import Router from "express-promise-router";
 
-import AuthController from "../../controllers/AuthController.js";
 import { signObjToken } from "../../common/util/JwtUtils.js";
+import UserController from "../../controllers/UserController.js";
 
 
 export default Router()
@@ -12,7 +12,7 @@ export default Router()
         password?: string;
     };
     
-    const id = await AuthController.authenticateUser(email, password)
+    const id = await UserController.authenticateUser(email, password)
     
     res.cookie("token", signObjToken({ id: id }), { secure: true, httpOnly: true })
     
