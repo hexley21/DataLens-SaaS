@@ -6,13 +6,14 @@ import ProfileController from "../../controllers/ProfileController.js";
 import CompanyController from "../../controllers/CompanyController.js";
 import createHttpError from "http-errors";
 import { QueryFailedError } from "typeorm";
+import { isActive } from "../../middlewares/active.js";
 
 
 export default Router()
-.get("/", authenticate, async (req: Request, res: Response) => {
+.get("/", authenticate, isActive, async (req: Request, res: Response) => {
     res.send(await ProfileController.getProfile(res.locals.user_id))
 })
-.patch("/", authenticate, async (req: Request, res: Response) => {
+.patch("/", authenticate, isActive, async (req: Request, res: Response) => {
     const { email, company_name, industry, country } = req.query as {
         email?: string,
         company_name?: string,

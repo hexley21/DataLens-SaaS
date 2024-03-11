@@ -11,7 +11,8 @@ export default function isRole(...roleArray: RoleEnum[]) {
         try {
             const user = await UserRepository.findByUserId(user_id);
 
-            if (!user) next(createHttpError(404, "User does not exist"))
+            if (!user) return next(createHttpError(404, "User does not exist"))
+            if (!user.registration_date) return next(createHttpError(403, "User is not activated"))
             
             if (!roleArray.includes(user!.role)) {
                 next(createHttpError(403, "Insufficient permissions."))
@@ -20,7 +21,7 @@ export default function isRole(...roleArray: RoleEnum[]) {
 
             res.locals.user_id = user_id
             
-            next();
+            return next();
         } catch (e) {
             return next(createHttpError("Server error checking user role." ))
         }

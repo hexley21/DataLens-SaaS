@@ -6,7 +6,7 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ./processed_files:/usr/src/app/processed_files
+      - ./uploads:/usr/src/app/uploads
     depends_on:
       - db
     links:
