@@ -5,6 +5,8 @@ import IController from "../common/interfaces/IController.js";
 import CompanyEntity from "../models/entities/users/CompanyEntity.js";
 import UserEntity from "../models/entities/users/UserEntity.js";
 import UserController from "./UserController.js";
+import RoleEnum from "../models/entities/enum/RoleEnum.js";
+import EmployeeController from "./EmployeeController.js";
 
 
 export class CompanyController extends IController<CompanyEntity> {
@@ -68,6 +70,18 @@ export class CompanyController extends IController<CompanyEntity> {
             .execute()
         
     }
+
+    public async getCompanyIdIndependent(user_id: string): Promise<string> {
+        const user = (await UserController.findById(user_id))!
+
+        switch (user.role) {
+            case RoleEnum.COMPANY:
+                return (await this.findByUserId(user.id))!.id
+            case RoleEnum.EMPLOYEE:
+                return (await EmployeeController.findByUserId(user.id))!.company_id
+        }
+    }
+
 
 }
 

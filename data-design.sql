@@ -78,11 +78,9 @@ ALTER TABLE USERS.COMPANY ADD COLUMN IF NOT EXISTS subscription_id UUID REFERENC
 
 CREATE TABLE IF NOT EXISTS files.file (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-    company_id UUID REFERENCES users.company(id) ON DELETE SET NULL,
-    employee_id UUID REFERENCES users.employee(id) ON DELETE SET NULL,
-    file_name VARCHAR(64) NOT NULL,
-    file_path VARCHAR(64) NOT NULL,
-    upload_date DATE NOT NULL DEFAULT NOW()
+    owner_company_id UUID REFERENCES users.company(id) ON DELETE SET NULL,
+    owner_user_id UUID REFERENCES users.user(id) ON DELETE SET NULL,
+    name VARCHAR(64) NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS files.access (
@@ -91,6 +89,36 @@ CREATE TABLE IF NOT EXISTS files.access (
     employee_id UUID REFERENCES users.employee(id) NOT NULL
 );
 
+CREATE OR REPLACE FUNCTION check_unique_user_file()
+RETURNS TRIGGER AS $$
+BEGIN
+
+  IF NEW.name !~ '^[0-9a-zA-Z_\-. ]+$' THEN
+    RAISE EXCEPTION 'Invalid file name: %', NEW.name;
+  END IF;
+
+  -- Check for existing file with the same name and owner_user_id
+  IF EXISTS (
+    SELECT 1
+    FROM files.file
+    WHERE owner_user_id = NEW.owner_user_id
+    AND name = NEW.name
+  )
+  THEN
+    -- Just pass without inserting or updating
+    RETURN NULL;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_check_unique_user_file
+BEFORE INSERT OR UPDATE ON files.file
+FOR EACH ROW EXECUTE FUNCTION check_unique_user_file();
+
+us = b6fbc703-618c-4881-a3b5-c9c527a5809d
+com = b77ee815-14a2-42eb-9645-7517d60f57cc
 
 INSERT INTO COUNTRIES ("id", "name") VALUES (E'AF', E'Afghanistan');
 INSERT INTO COUNTRIES ("id", "name") VALUES (E'AX', E'Åland Islands');

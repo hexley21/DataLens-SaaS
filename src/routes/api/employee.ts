@@ -18,7 +18,7 @@ import isEmailTaken from "../../middlewares/email.js";
 
 
 export default Router()
-.put("/:email", authentication, isRole(RoleEnum.COMPANY), isEmailTaken, async (req: Request, res: Response) => {
+.post("/:email", authentication, isRole(RoleEnum.COMPANY), isEmailTaken, async (req: Request, res: Response) => {
     const email = req.params.email
     const company_id = (await CompanyController.findByUserId(res.locals.user_id))!.id
 

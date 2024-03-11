@@ -1,15 +1,53 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import Router from "express-promise-router";
+
 import authentication from "../../middlewares/authenticate.js";
 
 
+import createHttpError, { HttpError } from "http-errors";
+
+import { isActive } from "../../middlewares/active.js";
+import { uploadFile } from "../../middlewares/uploadFile.js";
+import FileController from "../../controllers/FileController.js";
+import CompanyController from "../../controllers/CompanyController.js";
+import { QueryFailedError } from "typeorm";
+
+
 export default Router()
-.put("/:file", authentication, (req: Request, res: Response) => {
-    res.send("file to upload: XXX");
+  .post("/", authentication, isActive, uploadFile("csv", "xls", "xlsx"), (req: Request, res: Response) => {
+    if (!req.file) {
+        return res.status(400).send("No file uploaded.");
+    }
+
+    console.log(req.file.path);
+  
+    res.send(`File uploaded successfully: ${req.file.originalname}`);
+  })
+.delete("/:name", authentication, isActive, async (req: Request, res: Response) => {
+
+    const name = req.params.name
+    const user_id = res.locals.user_id
+
+    try {
+        await FileController.delete(user_id, name)
+        res.send(`file ${name} was deleted`);
+    }
+    catch (e) {
+        if (e instanceof HttpError) throw e
+        throw createHttpError(500, (e as Error).message)
+    }
 })
-.patch("/:name", authentication, (req: Request, res: Response) => {
-    res.send("file to patch: XXX");
+.patch("/:name", authentication, isActive, (req: Request, res: Response,) => {
+    res.send("soon...")
 })
-.delete("/:name", authentication, (req: Request, res: Response) => {
-    res.send("file to delete: XXX");
+.get("/", authentication, isActive, async (req: Request, res: Response, next: NextFunction) => {
+
+    const email = req.query.email as string
+    const name = req.query.name as string
+    const page = req.query.page ? parseInt(req.query.page as string) : 1
+
+    const company_id = await CompanyController.getCompanyIdIndependent(res.locals.user_id)
+
+    res.send(await FileController.find(company_id, email, name, page))
 })
+

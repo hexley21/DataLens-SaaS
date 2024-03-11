@@ -1,11 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-
-import FileEntity from "./FileEntity.js";
-import EmployeeEntity from "../users/EmployeeEntity.js";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Relation } from "typeorm";
 
 
 @Entity({ name: "access", schema: "files" })
-export class Access {
+export default class AccessEntity {
   @PrimaryGeneratedColumn("uuid")
   id!: string;
 
@@ -15,12 +12,4 @@ export class Access {
   @Column({ type: "uuid", name: "employee_id", nullable: false })
   employee_id!: string;
 
-
-  @ManyToOne(() => FileEntity)
-  @JoinColumn({ name: "file_id" })
-  file?: FileEntity;
-
-  @ManyToOne(() => EmployeeEntity)
-  @JoinColumn({ name: "employee_id" })
-  employee?: EmployeeEntity;
 }

@@ -8,11 +8,8 @@ import jwt from "jsonwebtoken"
 export async function isActive(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     const user_id: string = req.params.user_id ? req.params.user_id as string : res.locals.user_id as string;
 
-    console.log(user_id)
-
     try {
         const user = await UserController.findById(user_id);
-        console.log(user)
 
         if (!user) return next(createHttpError(404, "User does not exist"))
         
