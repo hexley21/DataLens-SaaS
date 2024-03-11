@@ -12,13 +12,15 @@ import CompanyController from "../../controllers/CompanyController.js";
 import RegisterController from "../../controllers/RegisterController.js";
 import EmployeeController from "../../controllers/EmployeeController.js";
 import { QueryFailedError } from "typeorm";
+
 import isRole from "../../middlewares/role.js";
+import isEmailTaken from "../../middlewares/email.js";
 
 
 export default Router()
 .put("/:email", authentication, isRole(RoleEnum.COMPANY), isEmailTaken, async (req: Request, res: Response) => {
     const email = req.params.email
-    const company_id = res.locals.company_id
+    const company_id = (await CompanyController.findByUserId(res.locals.user_id))!.id
 
     console.log(company_id)
 
@@ -42,34 +44,3 @@ export default Router()
     
     res.send(`Employee: ${req.params.email} was removed`);
 })
-
-
-
-async function isEmailTaken(req: Request, res: Response, next: NextFunction) {
-    const email = req.params.email
-
-    try {
-        const employee = await EmployeeController.findByEmail(email)
-
-        const thisCompany = await CompanyController.findByUserId(res.locals.user_id)
-        res.locals.company_id = thisCompany!.id
-
-        if (employee) {
-
-            if (employee.company_id != thisCompany!.id) next(createHttpError(409, "This email belongs to other organization"))
-
-            if ((await UserController.findById(employee.user_id))!.registration_date) next(createHttpError(409, "This user is already activated"))
-
-            await RegisterController.sendActivation(email)
-
-            
-            next(createHttpError(403, "This user is already added but not activated, activation email was resent"))
-        }
-        next()
-    }
-    catch (e) {
-        next(createHttpError(500, (e as Error).message))
-    }
-    
-    
-}

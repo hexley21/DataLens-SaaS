@@ -54,8 +54,6 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
 
         try {
 
-            if (await this.findUserByEmail(email)) throw Error("This user already exist")
-
             const salt = this.encriptionService.getSalt()
             const hash = await this.encriptionService.encryptPassword(password, salt)
 

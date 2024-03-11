@@ -13,7 +13,10 @@ export default function isRole(...roleArray: RoleEnum[]) {
 
             if (!user) next(createHttpError(404, "User does not exist"))
             
-            if (!roleArray.includes(user!.role)) next(createHttpError(403, "Insufficient permissions."))
+            if (!roleArray.includes(user!.role)) {
+                next(createHttpError(403, "Insufficient permissions."))
+                return;
+            }
 
             res.locals.user_id = user_id
             

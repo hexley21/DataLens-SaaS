@@ -15,7 +15,7 @@ export class UserRepository extends IUserRepository<UserEntity> {
     }
 
     public async findByEmail(email?: string): Promise<UserEntity | null> {
-        return this.findUserByEmail(email);
+        return await this.findUserByEmail(email);
     }
 
     public async findByUserId(user_id?: string): Promise<UserEntity | null> {

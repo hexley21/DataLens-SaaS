@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-import UserRepository from "../repository/UserRepository.js";
 import createHttpError from "http-errors";
 import { verifyToken } from "../common/util/JwtUtils.js";
 import UserController from "../controllers/UserController.js";
@@ -10,7 +9,7 @@ export async function isActive(req: Request, res: Response, next: NextFunction):
     const { user_id } = req.params;
 
     try {
-        const user = await UserRepository.findByUserId(user_id);
+        const user = await UserController.findById(user_id);
 
         if (!user) next(createHttpError(404, "User does not exist"))
         
@@ -26,7 +25,7 @@ export async function isNotActiveByEmail(req: Request, res: Response, next: Next
     const { email } = req.params as { email: string};
 
     try {
-        const user = await UserRepository.findUserByEmail(email);
+        const user = await UserController.findByEmail(email);
 
         if (!user) next(createHttpError(404, "User does not exist"))
         

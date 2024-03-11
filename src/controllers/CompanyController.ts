@@ -61,6 +61,14 @@ export class CompanyController extends IController<CompanyEntity> {
         await updateQuery.execute();
     }
 
+    async deleteCompany(user_id: string): Promise<void> {
+        await this.createQueryBuilder("c")
+            .delete()
+            .where("user_id = :user_id", { user_id: user_id })
+            .execute()
+        
+    }
+
 }
 
 
