@@ -3,10 +3,11 @@ import Router from "express-promise-router";
 
 import authentication from "../../middlewares/authenticate.js";
 
+
 import createHttpError, { HttpError } from "http-errors";
 
 import { isActive } from "../../middlewares/active.js";
-import { uploadFile, uploadsFolder } from "../../middlewares/uploadFile.js";
+import { uploadFile } from "../../middlewares/uploadFile.js";
 import FileController from "../../controllers/FileController.js";
 import CompanyController from "../../controllers/CompanyController.js";
 
@@ -46,10 +47,6 @@ export default Router()
 
     const company_id = await CompanyController.getCompanyIdIndependent(res.locals.user_id)
 
-    const found = (await FileController.find(company_id, email, name, page))
-
-    if (found.length != 1) res.send(found)
-
-    res.download(`${uploadsFolder}/${found[0].path}/${found[0].name}`, found[0].name)
+    res.send(await FileController.find(company_id, email, name, page))
 })
 

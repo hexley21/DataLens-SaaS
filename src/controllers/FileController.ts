@@ -73,7 +73,7 @@ export class FileController extends IController<FileEntity> {
             .execute()
     }
 
-    public async find(company_id: string, email?: string, name?: string, page = 1) {
+    public async find(company_id: string, email?: string, name?: string, page = 1): Promise<any> {
 
         const file = this.createQueryBuilder("f")
             .leftJoin(UserEntity, "u", "u.id = f.owner_user_id")
