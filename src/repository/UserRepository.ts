@@ -15,11 +15,11 @@ export class UserRepository extends IUserRepository<UserEntity> {
     }
 
     public async findByEmail(email?: string): Promise<UserEntity | null> {
-        return this.findByEmail(email);
+        return this.findUserByEmail(email);
     }
 
-    public findByUserId(user_id?: string): Promise<UserEntity | null> {
-        return this.findByUserId(user_id);
+    public async findByUserId(user_id?: string): Promise<UserEntity | null> {
+        return await this.findUserById(user_id);
     }
 }
 

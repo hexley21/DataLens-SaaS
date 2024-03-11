@@ -36,17 +36,20 @@ export class UserController extends IController<UserEntity> {
         throw Error("This user does not exists")
     }
 
-    public async authenticateUser(email?: string, password?: string): Promise<Boolean> {
-        if (!email || !password) return false
+    public async authenticateUser(email?: string, password?: string): Promise<string | null> {
+        if (!email || !password) return null
 
         const user = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
             .select("id, hash, salt")
             .where({ email: email })
-            .getRawOne() as { hash: string, salt: string })
+            .getRawOne() as { id: string, hash: string, salt: string })
         
     
         const encripted = await this.encriptionService.encryptPassword(password, user.salt)
-        return user.hash === encripted;
+        
+        if (user.hash === encripted) return user.id
+
+        return null;
     }
 
 
@@ -54,7 +57,7 @@ export class UserController extends IController<UserEntity> {
         if ((!oldPassword) || (!newPassword) || (!user_id)) throw new Error("Invalid Arguments")
 
         const { old_hash, old_salt } = (await this.createQueryBuilder("u")
-            .select("hash as old_hash, old_salt")
+            .select("hash as old_hash, salt as old_salt")
             .where("u.id = :id", { id: user_id })
             .getRawOne() as { old_hash: string, old_salt: string })
 
@@ -66,8 +69,7 @@ export class UserController extends IController<UserEntity> {
         await this.userRepository.changePassword(user_id, newPassword)
     }
 
-
-    public async deleteUser(user_id: string): Promise<void | never> {
+public async deleteUser(user_id: string): Promise<void | never> {
         await this.deleteBy({ id: user_id})
     }
 

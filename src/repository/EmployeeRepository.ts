@@ -115,8 +115,6 @@ export class EmployeeRepository extends IUserRepository<EmployeeEntity> {
         if (!password) {
             password = crypto.randomBytes(parseInt(process.env.RAND_PASSWORD_LENGTH!) / 2).toString("hex");
 
-            console.log(user_id)
-
             await this.changePassword(user_id, password!)
         }
 
