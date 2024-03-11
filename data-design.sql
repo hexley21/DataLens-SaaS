@@ -28,12 +28,11 @@ CREATE TABLE IF NOT EXISTS INDUSTRIES(
 
 CREATE TABLE IF NOT EXISTS users.user(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-    email VARCHAR(255) CHECK(EMAIL ~ '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$') NOT NULL,
+    email VARCHAR(255) UNIQUE CHECK(EMAIL ~ '^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$') NOT NULL,
     role ROLE NOT NULL,
     registration_date DATE,
     hash VARCHAR(64) NOT NULL CHECK(LENGTH(hash) = 64),
     salt VARCHAR(64) NOT NULL CHECK(LENGTH(salt) = 64)
-    UNIQUE(email)
 );
 
 
@@ -51,10 +50,15 @@ CREATE TABLE IF NOT EXISTS subscription.tier(
 CREATE TABLE IF NOT EXISTS users.company(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     user_id UUID REFERENCES users.user(id) ON DELETE CASCADE NOT NULL,
-    company_name VARCHAR(64) CHECK(company_name ~ '^(?!\s)(?!.*\s$)(?=.*[a-zA-Z0-9])[a-zA-Z0-9 ''~?!]{2,}$') NOT NULL,
+    company_name VARCHAR(64) UNIQUE CHECK(company_name ~ '^(?!\s)(?!.*\s$)(?=.*[a-zA-Z0-9])[a-zA-Z0-9 ''~?!]{2,}$') NOT NULL,
     industry VARCHAR(8) REFERENCES industries(id) ON DELETE  SET DEFAULT DEFAULT 'ELSE' NOT NULL,
-    country VARCHAR(2) REFERENCES countries(id) ON DELETE RESTRICT NOT NULL,
-    UNIQUE(company_name)
+    country VARCHAR(2) REFERENCES countries(id) ON DELETE RESTRICT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users.employee(
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+    user_id UUID REFERENCES users.user(id) ON DELETE CASCADE NOT NULL,
+    company_id UUID REFERENCES users.company(id) ON DELETE CASCADE NOT NULL
 );
 
 
