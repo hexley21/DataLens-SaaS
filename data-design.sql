@@ -85,8 +85,8 @@ CREATE TABLE IF NOT EXISTS files.file (
 
 CREATE TABLE IF NOT EXISTS files.access (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-    file_id UUID REFERENCES files.file(id) NOT NULL,
-    user_id UUID REFERENCES users.user(id) NOT NULL
+    file_id UUID REFERENCES files.file(id) NOT NULL ON DELETE CASCADE,
+    user_id UUID REFERENCES users.user(id) NOT NULL ON DELETE CASCADE
 );
 
 CREATE OR REPLACE FUNCTION check_unique_user_file()
@@ -113,7 +113,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trigger_check_unique_user_file
+CREATE OR REPLACE TRIGGER trigger_check_unique_user_file
 BEFORE INSERT OR UPDATE ON files.file
 FOR EACH ROW EXECUTE FUNCTION check_unique_user_file();
 
@@ -140,7 +140,7 @@ END;
 $$
 LANGUAGE plpgsql;
 
-CREATE TRIGGER check_duplicate_access
+CREATE OR REPLACE TRIGGER check_duplicate_access
 BEFORE INSERT OR UPDATE ON files.access
 FOR EACH ROW EXECUTE FUNCTION prevent_duplicate_access();
 

@@ -11,6 +11,7 @@ import EmployeeController from "../users/EmployeeController.js";
 import UserController from "../users/UserController.js";
 
 import createHttpError from "http-errors";
+import FileAccessController from "./FileAccessController.js";
 
 
 export class FileController extends IController<FileEntity> {
@@ -67,16 +68,18 @@ export class FileController extends IController<FileEntity> {
         
     }
 
-    public async setAccess(owner_company_id: string, owner_user_id: string, name: string, ...users: string[]): Promise<void> {
-
-    }
-
     public async insert(owner_company_id: string, owner_user_id: string, name: string, allowed_users?: string[]): Promise<string | undefined> {
-        const newFile = ((await this.createQueryBuilder("f")
+        let newFile = ((await this.createQueryBuilder("f")
             .insert()
             .values({ owner_company_id: owner_company_id, owner_user_id: owner_user_id, name: name })
             .returning("*")
             .execute()).generatedMaps as FileEntity[])[0]
+
+        if ('{}' === JSON.stringify(newFile)) {
+            newFile = (await this.findByUserId(owner_user_id, name))!
+        }
+
+        if (allowed_users && allowed_users.length > 0)  await FileAccessController.setAccess(newFile, allowed_users)
 
         return newFile.id;
     }
@@ -97,6 +100,13 @@ export class FileController extends IController<FileEntity> {
             
 
         return await (file.getRawMany()) as { owner_company_id: string, owner_user_id: string, name: string, path: string }[]
+    }
+
+    public async findByUserId(owner_user_id: string, name: string) {
+        return this.createQueryBuilder("f")
+            .select()
+            .where("owner_user_id = :owner_user_id AND name =:name", { owner_user_id: owner_user_id, name: name })
+            .getOne()
     }
 
 }

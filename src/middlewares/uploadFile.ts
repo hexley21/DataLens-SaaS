@@ -45,14 +45,13 @@ export  function uploadFile(...extensions: string[]) {
         
         const user = (await UserController.findById(res.locals.user_id))!
 
-        let company_id: string
 
         switch (user?.role ) {
             case RoleEnum.COMPANY:
-                company_id = (await CompanyController.findByUserId(user_id))!.id
+                res.locals.company_id = (await CompanyController.findByUserId(user_id))!.id
                 break;
             case RoleEnum.EMPLOYEE:
-                company_id = (await EmployeeController.findByUserId(user_id)).company_id
+                res.locals.company_id = (await EmployeeController.findByUserId(user_id)).company_id
         }
 
 
@@ -70,7 +69,6 @@ export  function uploadFile(...extensions: string[]) {
             if (err) return next(err)
             if (!req.file) return next(createHttpError(500, "Could not upload file"))
 
-            await FileController.insert(company_id, user_id, req.file!.originalname )
             next()
         }) 
     

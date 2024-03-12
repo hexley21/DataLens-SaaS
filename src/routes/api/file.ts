@@ -13,12 +13,12 @@ import CompanyController from "../../controllers/users/CompanyController.js";
 
 
 export default Router()
-  .put("/", authentication, isActive, uploadFile("csv", "xls", "xlsx"), (req: Request, res: Response) => {
-    if (!req.file) {
-        return res.status(400).send("No file uploaded.");
-    }
+  .put("/", authentication, isActive, uploadFile("csv", "xls", "xlsx"), async (req: Request, res: Response) => {
+    if (!req.file) throw createHttpError(500, "No file uploaded")
 
-    console.log(req.file.path);
+    const visible_to = req.query.visible_to ? (req.query.visible_to as string).trim().split(',') : []
+
+    await FileController.insert(res.locals.company_id, res.locals.user_id, req.file.originalname, visible_to)
   
     res.send(`File uploaded successfully: ${req.file.originalname}`);
   })
