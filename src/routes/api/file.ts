@@ -10,6 +10,7 @@ import { isActive } from "../../middlewares/active.js";
 import { uploadFile, uploadsFolder } from "../../middlewares/uploadFile.js";
 import FileController from "../../controllers/files/FileController.js";
 import CompanyController from "../../controllers/users/CompanyController.js";
+import FileAccessController from "../../controllers/files/FileAccessController.js";
 
 
 export default Router()
@@ -36,9 +37,6 @@ export default Router()
         throw createHttpError(500, (e as Error).message)
     }
 })
-.patch("/:name", authentication, isActive, (req: Request, res: Response,) => {
-    res.send("soon...")
-})
 .get("/", authentication, isActive, async (req: Request, res: Response, next: NextFunction) => {
 
     const email = req.query.email as string
@@ -53,4 +51,28 @@ export default Router()
 
     res.download(`${uploadsFolder}/${foundFiles[0].owner}/${foundFiles[0].name}`, foundFiles[0].name)
 })
+.get("/access",  authentication, isActive, async (req: Request, res: Response, next: NextFunction) => {
+    res.send(await FileAccessController.getFileAccess(res.locals.user_id))
+})
+.get("/access/:name", authentication, isActive, async (req: Request, res: Response, next: NextFunction) => {
+    res.send(await FileAccessController.getFileAccess(res.locals.user_id, req.params.name))
+})
+.patch("/show/:name", authentication, isActive, async (req: Request, res: Response,) => {
+    const company_id = await CompanyController.getCompanyIdIndependent(res.locals.user_id)
 
+    const foundFile = await FileController.findByUserId(res.locals.user_id, req.params.name);
+
+    const visible_to = req.query.visible_to ? (req.query.visible_to as string).trim().split(',') : []
+
+
+    if (!foundFile) throw createHttpError(404, "File not found")
+
+    if (visible_to.length == 0) {
+        await FileAccessController.makeVisible(foundFile.id)
+        res.redirect(`/api/file/access/${req.params.name}`)
+        return;
+    }
+
+    await FileAccessController.setAccess(foundFile.id, company_id, visible_to)
+    res.redirect(`/api/file/access/${req.params.name}`)
+})

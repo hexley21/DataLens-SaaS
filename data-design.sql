@@ -78,15 +78,15 @@ ALTER TABLE USERS.COMPANY ADD COLUMN IF NOT EXISTS subscription_id UUID REFERENC
 
 CREATE TABLE IF NOT EXISTS files.file (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-    owner_company_id UUID REFERENCES users.company(id) ON DELETE SET NULL,
-    owner_user_id UUID REFERENCES users.user(id) ON DELETE SET NULL,
+    owner_company_id UUID REFERENCES users.company(id) ON DELETE CASCADE NOT NULL,
+    owner_user_id UUID REFERENCES users.user(id) ON DELETE CASCDE NOT NULL,
     name VARCHAR(64) NOT NULL,
 );
 
 CREATE TABLE IF NOT EXISTS files.access (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
-    file_id UUID REFERENCES files.file(id) NOT NULL ON DELETE CASCADE,
-    user_id UUID REFERENCES users.user(id) NOT NULL ON DELETE CASCADE
+    file_id UUID REFERENCES files.file(id) ON DELETE CASCADE NOT NULL,
+    user_id UUID REFERENCES users.user(id) ON DELETE CASCADE NOT NULL
 );
 
 CREATE OR REPLACE FUNCTION check_unique_user_file()

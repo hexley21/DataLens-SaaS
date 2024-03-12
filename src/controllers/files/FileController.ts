@@ -1,20 +1,22 @@
+import createHttpError from "http-errors";
+import { Brackets } from "typeorm";
+
 import IController from "../../common/interfaces/IController.js"
 import IFileManager from "../../common/interfaces/managers/IFileManager.js";
-import AppDataSource from "../../data/AppDataSource.js"
-import RoleEnum from "../../models/entities/enum/RoleEnum.js";
 
+import AppDataSource from "../../data/AppDataSource.js"
+
+import RoleEnum from "../../models/entities/enum/RoleEnum.js";
 import FileEntity from "../../models/entities/files/FileEntity.js"
 import UserEntity from "../../models/entities/users/UserEntity.js";
+
 import BasicFileManager from "../../managers/BasicFileManager.js";
+
 import CompanyController from "../users/CompanyController.js";
 import EmployeeController from "../users/EmployeeController.js";
 import UserController from "../users/UserController.js";
 
-import createHttpError from "http-errors";
 import FileAccessController from "./FileAccessController.js";
-import AccessEntity from "../../models/entities/files/AccessEntity.js";
-import { AfterSoftRemove, Brackets } from "typeorm";
-import CompanyEntity from "../../models/entities/users/CompanyEntity.js";
 
 
 export class FileController extends IController<FileEntity> {
@@ -41,12 +43,6 @@ export class FileController extends IController<FileEntity> {
                 company_id =  (await EmployeeController.findByUserId(user.id))!.company_id
                 break;
         }
-
-
-        // const file = (await this.find(company_id, user.email, name))[0]
-
-        // if (!file) throw createHttpError(404, "File not found")
-
 
         let affected
 
@@ -87,7 +83,7 @@ export class FileController extends IController<FileEntity> {
             newFile = (await this.findByUserId(owner_user_id, name))!
         }
 
-        if (allowed_users && allowed_users.length > 0)  await FileAccessController.setAccess(newFile, allowed_users)
+        if (allowed_users && allowed_users.length > 0)  await FileAccessController.setAccess(newFile.id, newFile.owner_company_id, allowed_users)
 
         return newFile.id;
     }
