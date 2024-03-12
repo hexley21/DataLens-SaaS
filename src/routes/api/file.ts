@@ -39,7 +39,10 @@ export default Router()
 
     let foundFiles = await FileController.findAccessibleFiles(company_id, res.locals.user_id, email, name, page)
 
-    if (foundFiles.length != 1) res.send(foundFiles)
+    if (foundFiles.length != 1) {
+        res.send(foundFiles)
+        return;
+    }
 
     res.download(`${uploadsFolder}/${foundFiles[0].owner}/${foundFiles[0].name}`, foundFiles[0].name)
 })

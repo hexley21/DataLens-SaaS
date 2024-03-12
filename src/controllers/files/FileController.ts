@@ -6,14 +6,11 @@ import IFileManager from "../../common/interfaces/managers/IFileManager.js";
 
 import AppDataSource from "../../data/AppDataSource.js"
 
-import RoleEnum from "../../models/entities/enum/RoleEnum.js";
 import FileEntity from "../../models/entities/files/FileEntity.js"
 import UserEntity from "../../models/entities/users/UserEntity.js";
 
 import BasicFileManager from "../../managers/BasicFileManager.js";
 
-import CompanyController from "../users/CompanyController.js";
-import EmployeeController from "../users/EmployeeController.js";
 import UserController from "../users/UserController.js";
 
 import FileAccessController from "./FileAccessController.js";
@@ -55,8 +52,6 @@ export class FileController extends IController<FileEntity> {
         
     }
 
-
-
     public async insert(owner_company_id: string, owner_user_id: string, name: string, allowed_users?: string[]): Promise<string | undefined> {
         let newFile = ((await this.createQueryBuilder("f")
             .insert()
@@ -77,12 +72,20 @@ export class FileController extends IController<FileEntity> {
             .leftJoin(UserEntity, "u", "u.id = f.owner_user_id")
             .select("u.email as owner, f.name as name")
             .where("f.owner_company_id = :company_id", { company_id: company_id })
-            .andWhere(new Brackets(qb => {
+            if (name) filesQuery.andWhere("f.name = :name", { name: name })
+
+            filesQuery.andWhere(new Brackets(qb => {
                 qb.where("EXISTS(SELECT 1 FROM users.user u LEFT JOIN users.company c ON u.id = c.user_id WHERE u.id = :user_id AND (u.role = 'COMPANY' OR c.id IS NOT NULL))", { user_id: user_id })
                 .orWhere("EXISTS(SELECT 1 FROM files.access a WHERE a.file_id = f.id AND a.user_id = :user_id)", { user_id: user_id })
                 .orWhere("NOT EXISTS(SELECT 1 FROM files.access WHERE file_id = f.id)");
             }))
-            .orWhere("f.owner_user_id = :user_id", { user_id: user_id })
+
+            if (!email && !name) filesQuery.orWhere("f.owner_user_id = :user_id", { user_id: user_id })
+
+
+            if (email) filesQuery.andWhere("u.email = :email", { email: email })
+
+            // if (name) filesQuery.andWhere("f.name = :name", { name: name })
 
 
         return (await filesQuery.limit(page * parseInt(process.env.ITEMS_PER_PAGE!)).getRawMany() as { owner: string, name: string }[])
