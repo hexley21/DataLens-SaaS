@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import createHttpError from "http-errors";
 import { verifyToken } from "../common/util/JwtUtils.js";
-import UserController from "../controllers/UserController.js";
+import UserController from "../controllers/users/UserController.js";
 
 import jwt from "jsonwebtoken"
+
 
 export async function isActive(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
     const user_id: string = req.params.user_id ? req.params.user_id as string : res.locals.user_id as string;

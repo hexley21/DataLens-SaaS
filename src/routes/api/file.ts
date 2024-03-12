@@ -8,8 +8,8 @@ import createHttpError, { HttpError } from "http-errors";
 
 import { isActive } from "../../middlewares/active.js";
 import { uploadFile, uploadsFolder } from "../../middlewares/uploadFile.js";
-import FileController from "../../controllers/FileController.js";
-import CompanyController from "../../controllers/CompanyController.js";
+import FileController from "../../controllers/files/FileController.js";
+import CompanyController from "../../controllers/users/CompanyController.js";
 
 
 export default Router()

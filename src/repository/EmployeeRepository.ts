@@ -55,8 +55,8 @@ export class EmployeeRepository extends IUserRepository<EmployeeEntity> {
         try {
             const password = crypto.randomBytes(parseInt(process.env.RAND_PASSWORD_LENGTH!) / 2).toString("hex");
 
-            const salt = this.encriptionService.getSalt()
-            const hash = await this.encriptionService.encryptPassword(password, salt)
+            const salt = this.encriptionManager.getSalt()
+            const hash = await this.encriptionManager.encryptPassword(password, salt)
                 
             const user_id = ((await transaction.manager.createQueryBuilder()
                 .insert()
@@ -120,7 +120,7 @@ export class EmployeeRepository extends IUserRepository<EmployeeEntity> {
 
         const confirmationLink = this.generateActivationLink(user_id)
 
-        this.emailService.sendEmail(
+        this.emailManager.sendEmail(
             email,
             "Employee email confirmation",
             `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>

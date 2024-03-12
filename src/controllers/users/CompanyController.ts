@@ -1,11 +1,11 @@
-import AppDataSource from "../data/AppDataSource.js";
+import AppDataSource from "../../data/AppDataSource.js";
 
-import IController from "../common/interfaces/IController.js";
+import IController from "../../common/interfaces/IController.js";
 
-import CompanyEntity from "../models/entities/users/CompanyEntity.js";
-import UserEntity from "../models/entities/users/UserEntity.js";
+import CompanyEntity from "../../models/entities/users/CompanyEntity.js";
+import UserEntity from "../../models/entities/users/UserEntity.js";
 import UserController from "./UserController.js";
-import RoleEnum from "../models/entities/enum/RoleEnum.js";
+import RoleEnum from "../../models/entities/enum/RoleEnum.js";
 import EmployeeController from "./EmployeeController.js";
 
 

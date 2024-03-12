@@ -1,21 +1,26 @@
 import { signObjToken } from "../../util/JwtUtils.js";
-import IEmailService from "../IEmailService.js";
-import IEncriptionService from "../IEncriptionService.js";
+
+import IEmailManager from "../managers/IEmailManager.js";
+import IEncriptionManager from "../managers/IEncriptionManager.js";
+
+
+import BasicEncriptionManager from "../../../managers/BasicEncriptionManager.js";
+import BasicEmailManager from "../../../managers/BasicEmailManager.js";
+
 import AppDataSource from "../../../data/AppDataSource.js";
+
 import UserEntity from "../../../models/entities/users/UserEntity.js";
-import BasicEncriptionService from "../../../services/BasicEncriptionService.js";
-import BasicEmailService from "../../../services/BasicEmailService.js";
 
 
 export default abstract class IUserRepository<E> {
 
     protected dataSource = AppDataSource;
-    protected encriptionService: IEncriptionService
-    protected emailService: IEmailService
+    protected encriptionManager: IEncriptionManager
+    protected emailManager: IEmailManager
 
     constructor() {
-        this.encriptionService = BasicEncriptionService;
-        this.emailService = BasicEmailService;
+        this.encriptionManager = BasicEncriptionManager;
+        this.emailManager = BasicEmailManager;
     }
 
 
@@ -27,8 +32,8 @@ export default abstract class IUserRepository<E> {
     public abstract findByUserId(user_id: string): Promise<E | null>
 
     public async changePassword(user_id: string, newPassword: string): Promise<void | never> {
-        const salt = this.encriptionService.getSalt()
-        const hash = await this.encriptionService.encryptPassword(newPassword, salt)
+        const salt = this.encriptionManager.getSalt()
+        const hash = await this.encriptionManager.encryptPassword(newPassword, salt)
 
         await AppDataSource.createQueryBuilder(UserEntity, "u")
             .update()

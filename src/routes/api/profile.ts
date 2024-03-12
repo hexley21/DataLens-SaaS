@@ -3,7 +3,7 @@ import Router from "express-promise-router";
 
 import authenticate from "../../middlewares/authenticate.js";
 import ProfileController from "../../controllers/ProfileController.js";
-import CompanyController from "../../controllers/CompanyController.js";
+import CompanyController from "../../controllers/users/CompanyController.js";
 import createHttpError from "http-errors";
 import { QueryFailedError } from "typeorm";
 import { isActive } from "../../middlewares/active.js";

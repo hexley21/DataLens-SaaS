@@ -54,8 +54,8 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
 
         try {
 
-            const salt = this.encriptionService.getSalt()
-            const hash = await this.encriptionService.encryptPassword(password, salt)
+            const salt = this.encriptionManager.getSalt()
+            const hash = await this.encriptionManager.encryptPassword(password, salt)
 
             const newUser = ((await transaction.manager.createQueryBuilder()
                 .insert()
@@ -132,7 +132,7 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
     public async sendActivationEmail(user_id?: string, email?: string, password?: string): Promise<void> {
         const confirmationLink = this.generateActivationLink(user_id)
 
-        this.emailService.sendEmail(
+        this.emailManager.sendEmail(
             email!,
             "Company email confirmation",
             `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>

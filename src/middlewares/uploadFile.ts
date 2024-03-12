@@ -5,12 +5,12 @@ import path from "path";
 
 import fs from "fs/promises"
 
-import EmployeeController from "../controllers/EmployeeController.js";
+import EmployeeController from "../controllers/users/EmployeeController.js";
 import createHttpError from "http-errors";
-import FileController from "../controllers/FileController.js";
-import UserController from "../controllers/UserController.js";
+import FileController from "../controllers/files/FileController.js";
+import UserController from "../controllers/users/UserController.js";
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
-import CompanyController from "../controllers/CompanyController.js";
+import CompanyController from "../controllers/users/CompanyController.js";
 
 export const uploadsFolder = path.join(__dirname, "../../../uploads")
 

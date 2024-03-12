@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Router from "express-promise-router";
 import authentication from "../../middlewares/authenticate.js";
 import createHttpError from "http-errors";
-import UserController from "../../controllers/UserController.js";
+import UserController from "../../controllers/users/UserController.js";
 
 
 export default Router()

@@ -1,4 +1,4 @@
-import IFileManager from "../common/interfaces/IFileManager.js";
+import IFileManager from "../common/interfaces/managers/IFileManager.js";
 
 import fs from "fs/promises"
 

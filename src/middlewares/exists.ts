@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 
 import createHttpError from "http-errors";
 
-import UserController from "../controllers/UserController.js";
+import UserController from "../controllers/users/UserController.js";
 
 
 export async function existByEmail(req: Request, res: Response, next: NextFunction): Promise<Response | void> {

@@ -1,7 +1,6 @@
-import IEmailService from "../common/interfaces/IEmailService.js";
+import IEmailManager from "../common/interfaces/managers/IEmailManager";
 
 import { createTransport } from "nodemailer";
-import { signObjToken } from "../common/util/JwtUtils.js";
 
 
 const transporter = createTransport({
@@ -13,7 +12,7 @@ const transporter = createTransport({
     }
 });
 
-export class BasicEmailService implements IEmailService {
+export class BasicEmailManager implements IEmailManager {
 
     public sendEmail(to: string, subject: string, html?: string, text?: string, from?: string): void {
         transporter.sendMail({
@@ -29,4 +28,4 @@ export class BasicEmailService implements IEmailService {
 
 };
 
-export default new BasicEmailService()
+export default new BasicEmailManager()

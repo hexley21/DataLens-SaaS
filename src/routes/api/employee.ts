@@ -7,10 +7,10 @@ import authentication from "../../middlewares/authenticate.js";
 
 import RoleEnum from "../../models/entities/enum/RoleEnum.js";
 
-import UserController from "../../controllers/UserController.js";
-import CompanyController from "../../controllers/CompanyController.js";
+import UserController from "../../controllers/users/UserController.js";
+import CompanyController from "../../controllers/users/CompanyController.js";
 import RegisterController from "../../controllers/RegisterController.js";
-import EmployeeController from "../../controllers/EmployeeController.js";
+import EmployeeController from "../../controllers/users/EmployeeController.js";
 import { QueryFailedError } from "typeorm";
 
 import isRole from "../../middlewares/role.js";

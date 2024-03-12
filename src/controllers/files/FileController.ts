@@ -1,14 +1,14 @@
-import IController from "../common/interfaces/IController.js"
-import IFileManager from "../common/interfaces/IFileManager.js";
-import AppDataSource from "../data/AppDataSource.js"
-import RoleEnum from "../models/entities/enum/RoleEnum.js";
-import AccessEntity from "../models/entities/files/AccessEntity.js";
-import FileEntity from "../models/entities/files/FileEntity.js"
-import UserEntity from "../models/entities/users/UserEntity.js";
-import BasicFileManager from "../services/BasicFileManager.js";
-import CompanyController from "./CompanyController.js";
-import EmployeeController from "./EmployeeController.js";
-import UserController from "./UserController.js";
+import IController from "../../common/interfaces/IController.js"
+import IFileManager from "../../common/interfaces/managers/IFileManager.js";
+import AppDataSource from "../../data/AppDataSource.js"
+import RoleEnum from "../../models/entities/enum/RoleEnum.js";
+
+import FileEntity from "../../models/entities/files/FileEntity.js"
+import UserEntity from "../../models/entities/users/UserEntity.js";
+import BasicFileManager from "../../managers/BasicFileManager.js";
+import CompanyController from "../users/CompanyController.js";
+import EmployeeController from "../users/EmployeeController.js";
+import UserController from "../users/UserController.js";
 
 import createHttpError from "http-errors";
 

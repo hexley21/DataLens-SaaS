@@ -1,7 +1,7 @@
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
 import CompanyRepository from "../repository/CompanyRepository.js";
 import EmployeeRepository from "../repository/EmployeeRepository.js";
-import UserController from "./UserController.js";
+import UserController from "./users/UserController.js";
 
 
 export class RegisterController {

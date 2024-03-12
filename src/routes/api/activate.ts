@@ -6,7 +6,7 @@ import createHttpError from "http-errors";
 import { isActiveByToken } from "../../middlewares/active.js";
 
 import { verifyToken } from "../../common/util/JwtUtils.js";
-import UserController from "../../controllers/UserController.js";
+import UserController from "../../controllers/users/UserController.js";
 
 
 export default Router()

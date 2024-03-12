@@ -1,27 +1,27 @@
-import AppDataSource from "../data/AppDataSource.js";
+import AppDataSource from "../../data/AppDataSource.js";
 
-import IController from "../common/interfaces/IController.js";
+import IController from "../../common/interfaces/IController.js";
 
-import UserEntity from "../models/entities/users/UserEntity.js";
-import RoleEnum from "../models/entities/enum/RoleEnum.js";
+import UserEntity from "../../models/entities/users/UserEntity.js";
+import RoleEnum from "../../models/entities/enum/RoleEnum.js";
 
-import CompanyRepository from "../repository/CompanyRepository.js";
-import EmployeeRepository from "../repository/EmployeeRepository.js";
-import UserRepository from "../repository/UserRepository.js";
-import BasicEncriptionService from "../services/BasicEncriptionService.js";
-import IEncriptionService from "../common/interfaces/IEncriptionService.js";
+import CompanyRepository from "../../repository/CompanyRepository.js";
+import EmployeeRepository from "../../repository/EmployeeRepository.js";
+import UserRepository from "../../repository/UserRepository.js";
+import BasicEncriptionManager from "../../managers/BasicEncriptionManager.js";
+import IEncriptionManager from "../../common/interfaces/managers/IEncriptionManager.js";
 
 
 export class UserController extends IController<UserEntity> {
 
     private userRepository
-    private encriptionService: IEncriptionService;
+    private encriptionManager: IEncriptionManager;
 
 
     constructor() {
         super(AppDataSource.getRepository(UserEntity), "u");
         this.userRepository = UserRepository;
-        this.encriptionService = BasicEncriptionService;
+        this.encriptionManager = BasicEncriptionManager;
     }
 
     public async activateUser(user_id: string): Promise<string | never> {
@@ -45,7 +45,7 @@ export class UserController extends IController<UserEntity> {
             .getRawOne() as { id: string, hash: string, salt: string })
         
     
-        const encripted = await this.encriptionService.encryptPassword(password, user.salt)
+        const encripted = await this.encriptionManager.encryptPassword(password, user.salt)
         
         if (user.hash === encripted) return user.id
 
@@ -61,7 +61,7 @@ export class UserController extends IController<UserEntity> {
             .where("u.id = :id", { id: user_id })
             .getRawOne() as { old_hash: string, old_salt: string })
 
-        const encryptedOld = await this.encriptionService.encryptPassword(oldPassword, old_salt)
+        const encryptedOld = await this.encriptionManager.encryptPassword(oldPassword, old_salt)
 
         
         if (encryptedOld != old_hash) throw Error("old password does not match")

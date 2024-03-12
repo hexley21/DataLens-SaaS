@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import Router from "express-promise-router";
 
 import { signObjToken } from "../../common/util/JwtUtils.js";
-import UserController from "../../controllers/UserController.js";
+import UserController from "../../controllers/users/UserController.js";
 import { existByEmail } from "../../middlewares/exists.js";
 import createHttpError from "http-errors";
 
