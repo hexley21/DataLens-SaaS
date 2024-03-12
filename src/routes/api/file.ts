@@ -7,13 +7,13 @@ import authentication from "../../middlewares/authenticate.js";
 import createHttpError, { HttpError } from "http-errors";
 
 import { isActive } from "../../middlewares/active.js";
-import { uploadFile } from "../../middlewares/uploadFile.js";
+import { uploadFile, uploadsFolder } from "../../middlewares/uploadFile.js";
 import FileController from "../../controllers/FileController.js";
 import CompanyController from "../../controllers/CompanyController.js";
 
 
 export default Router()
-  .post("/", authentication, isActive, uploadFile("csv", "xls", "xlsx"), (req: Request, res: Response) => {
+  .put("/", authentication, isActive, uploadFile("csv", "xls", "xlsx"), (req: Request, res: Response) => {
     if (!req.file) {
         return res.status(400).send("No file uploaded.");
     }
@@ -46,7 +46,10 @@ export default Router()
     const page = req.query.page ? parseInt(req.query.page as string) : 1
 
     const company_id = await CompanyController.getCompanyIdIndependent(res.locals.user_id)
+    const found = (await FileController.find(company_id, email, name, page))
 
-    res.send(await FileController.find(company_id, email, name, page))
+    if (found.length != 1) res.send(found)
+
+    res.download(`${uploadsFolder}/${found[0].path}/${found[0].name}`, found[0].name)
 })
 

@@ -9,7 +9,7 @@ export default class AccessEntity {
   @Column({ type: "uuid", name: "file_id", nullable: false })
   file_id!: string;
 
-  @Column({ type: "uuid", name: "employee_id", nullable: false })
-  employee_id!: string;
+  @Column({ type: "uuid", name: "user_id", nullable: false })
+  user_id!: string;
 
 }

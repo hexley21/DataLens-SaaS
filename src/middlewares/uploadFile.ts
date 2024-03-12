@@ -5,7 +5,6 @@ import path from "path";
 
 import fs from "fs/promises"
 
-import { fileURLToPath } from "url";
 import EmployeeController from "../controllers/EmployeeController.js";
 import createHttpError from "http-errors";
 import FileController from "../controllers/FileController.js";
@@ -13,7 +12,6 @@ import UserController from "../controllers/UserController.js";
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
 import CompanyController from "../controllers/CompanyController.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 export const uploadsFolder = path.join(__dirname, "../../../uploads")
 
 

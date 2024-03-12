@@ -2,6 +2,7 @@ import IController from "../common/interfaces/IController.js"
 import IFileManager from "../common/interfaces/IFileManager.js";
 import AppDataSource from "../data/AppDataSource.js"
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
+import AccessEntity from "../models/entities/files/AccessEntity.js";
 import FileEntity from "../models/entities/files/FileEntity.js"
 import UserEntity from "../models/entities/users/UserEntity.js";
 import BasicFileManager from "../services/BasicFileManager.js";
@@ -66,14 +67,21 @@ export class FileController extends IController<FileEntity> {
         
     }
 
-    public async insert(owner_company_id: string, owner_user_id: string, name: string ): Promise<void | never> {
-        await this.createQueryBuilder("f")
-            .insert()
-            .values({ owner_company_id: owner_company_id, owner_user_id: owner_user_id, name: name })
-            .execute()
+    public async setAccess(owner_company_id: string, owner_user_id: string, name: string, ...users: string[]): Promise<void> {
+
     }
 
-    public async find(company_id: string, email?: string, name?: string, page = 1): Promise<any> {
+    public async insert(owner_company_id: string, owner_user_id: string, name: string, allowed_users?: string[]): Promise<string | undefined> {
+        const newFile = ((await this.createQueryBuilder("f")
+            .insert()
+            .values({ owner_company_id: owner_company_id, owner_user_id: owner_user_id, name: name })
+            .returning("*")
+            .execute()).generatedMaps as FileEntity[])[0]
+
+        return newFile.id;
+    }
+
+    public async find(company_id: string, email?: string, name?: string, page = 1) {
 
         const file = this.createQueryBuilder("f")
             .leftJoin(UserEntity, "u", "u.id = f.owner_user_id")

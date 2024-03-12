@@ -86,7 +86,7 @@ CREATE TABLE IF NOT EXISTS files.file (
 CREATE TABLE IF NOT EXISTS files.access (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     file_id UUID REFERENCES files.file(id) NOT NULL,
-    employee_id UUID REFERENCES users.employee(id) NOT NULL
+    user_id UUID REFERENCES users.user(id) NOT NULL
 );
 
 CREATE OR REPLACE FUNCTION check_unique_user_file()
@@ -117,8 +117,33 @@ CREATE TRIGGER trigger_check_unique_user_file
 BEFORE INSERT OR UPDATE ON files.file
 FOR EACH ROW EXECUTE FUNCTION check_unique_user_file();
 
-us = b6fbc703-618c-4881-a3b5-c9c527a5809d
-com = b77ee815-14a2-42eb-9645-7517d60f57cc
+
+
+CREATE OR REPLACE FUNCTION prevent_duplicate_access()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    -- Check if the row exists
+    IF EXISTS (
+        SELECT 1 
+        FROM files.access 
+        WHERE file_id = NEW.file_id AND user_id = NEW.user_id
+    ) 
+    THEN 
+        -- If it exists, do nothing
+        RETURN NULL;
+    ELSE 
+        -- If it does not exist, allow the insert/update
+        RETURN NEW;
+    END IF;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER check_duplicate_access
+BEFORE INSERT OR UPDATE ON files.access
+FOR EACH ROW EXECUTE FUNCTION prevent_duplicate_access();
+
 
 INSERT INTO COUNTRIES ("id", "name") VALUES (E'AF', E'Afghanistan');
 INSERT INTO COUNTRIES ("id", "name") VALUES (E'AX', E'Åland Islands');

@@ -70,12 +70,12 @@ export class EmployeeRepository extends IUserRepository<EmployeeEntity> {
                 .into(EmployeeEntity)
                 .values({ user_id: user_id, company_id: company_id})
                 .returning("user_id")
-                .execute()).generatedMaps)[0].user_id
+                .execute()).generatedMaps)[0]
 
             await this.sendActivationEmail(user_id, email, password)
 
             await transaction.commitTransaction()
-            return employee_id
+            return employee_id.user_id
         }
         catch (e) {
             await transaction.rollbackTransaction();
