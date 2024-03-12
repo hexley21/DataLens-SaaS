@@ -22,19 +22,22 @@ export async function isActive(req: Request, res: Response, next: NextFunction):
     }
 }
 
-export async function isNotActiveByEmail(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-    const { email } = req.params as { email: string};
+export function isActiveByEmail(status = true) {
+    return async (req: Request, res: Response, next: NextFunction) => {
+        const { email } = req.params as { email: string};
 
-    try {
-        const user = await UserController.findByEmail(email);
+        try {
+            const user = await UserController.findByEmail(email);
 
-        if (!user) next(createHttpError(404, "User does not exist"))
-        
-        if (user!.registration_date != null) next(createHttpError(403, "This user is activated"));
+            if (!user) return next(createHttpError(404, "User does not exist"))
 
-        next();
-    } catch (error) {
-        return next(createHttpError(500, "Server error checking user activation"));
+            if (status && !user.registration_date) return next(createHttpError(403, "This user is not active"));
+            else if (!status && user.registration_date) return next(createHttpError(403, "This user is active"))
+
+            return next();
+        } catch (error) {
+            return next(createHttpError(500, "Server error checking user activation"));
+        }
     }
 }
 
