@@ -1,5 +1,5 @@
 import createHttpError from "http-errors";
-import { Brackets } from "typeorm";
+import { Brackets, QueryFailedError } from "typeorm";
 
 import IController from "../../common/interfaces/IController.js"
 import IFileManager from "../../common/interfaces/managers/IFileManager.js";
@@ -27,50 +27,35 @@ export class FileController extends IController<FileEntity> {
         this.fileManager = BasicFileManager
     }
 
-    public async delete(owner_user_id: string, name?: string): Promise<void | never> {
-        if (!name) throw createHttpError(400, "Name not provided")
-        if (name.includes(' ')) throw createHttpError(400, "Name contains spaces")
-
-        const user = (await UserController.findById(owner_user_id))!
-
-        let company_id
-
-        switch (user.role) {
-            case RoleEnum.COMPANY:
-                company_id = (await CompanyController.findByUserId(user.id))!.id
-                break;
-            case RoleEnum.EMPLOYEE:
-                company_id =  (await EmployeeController.findByUserId(user.id))!.company_id
-                break;
-        }
-
+    public async delete(owner_user_id: string, name: string): Promise<void | never> {
         let affected
 
         const transaction = AppDataSource.createQueryRunner()
-
         await transaction.startTransaction()
 
         try {
             affected = (await transaction.manager.createQueryBuilder()
                 .delete()
                 .from(FileEntity, "f")
-                .where("owner_company_id = :company_id", { company_id: company_id })
                 .where("owner_user_id = :owner_user_id", { owner_user_id: owner_user_id })
                 .andWhere("name = :name", { name: name})
                 .execute()).affected
 
-            if (affected && affected > 0) await this.fileManager.deleteFile(user.email, name)
+            if (affected && affected > 0) await this.fileManager.deleteFile((await UserController.findById(owner_user_id))!.email, name)
                 
             transaction.commitTransaction()
         }
         catch (e) {
             transaction.rollbackTransaction()
-            throw e
+            if (e instanceof QueryFailedError) throw createHttpError(400, e.message)
+            throw createHttpError(500, (e as Error).message)
         }
 
         if (!affected || affected == 0) throw createHttpError(404, "File not found")
         
     }
+
+
 
     public async insert(owner_company_id: string, owner_user_id: string, name: string, allowed_users?: string[]): Promise<string | undefined> {
         let newFile = ((await this.createQueryBuilder("f")
@@ -79,11 +64,9 @@ export class FileController extends IController<FileEntity> {
             .returning("*")
             .execute()).generatedMaps as FileEntity[])[0]
 
-        if ('{}' === JSON.stringify(newFile)) {
-            newFile = (await this.findByUserId(owner_user_id, name))!
-        }
+        if ('{}' === JSON.stringify(newFile)) newFile = (await this.findFilesOfOwner(owner_user_id, name))!
 
-        if (allowed_users && allowed_users.length > 0)  await FileAccessController.setAccess(newFile.id, newFile.owner_company_id, allowed_users)
+        if (allowed_users && allowed_users.length > 0)  await FileAccessController.addAccess(newFile.id, newFile.owner_company_id, allowed_users)
 
         return newFile.id;
     }
@@ -105,22 +88,7 @@ export class FileController extends IController<FileEntity> {
         return (await filesQuery.limit(page * parseInt(process.env.ITEMS_PER_PAGE!)).getRawMany() as { owner: string, name: string }[])
     }
 
-
-    public async find(company_id: string, email?: string, name?: string, page = 1) {
-
-        const fileQuery = this.createQueryBuilder("f")
-            .leftJoin(UserEntity, "u", "u.id = f.owner_user_id")
-            .select("f.id as id, f.owner_company_id as owner_company_id, f.owner_user_id as owner_user_id, f.name as name, u.email as path")
-
-        fileQuery.offset((page-1) * parseInt(process.env.ITEMS_PER_PAGE!))
-            .limit(page * parseInt(process.env.ITEMS_PER_PAGE!))
-
-        return (await fileQuery.getRawMany()) as { id: string, owner_company_id: string, owner_user_id: string, name: string, path: string }[];
-
-    }
-
-
-    public async findByUserId(owner_user_id: string, name: string) {
+    public async findFilesOfOwner(owner_user_id: string, name: string) {
         return this.createQueryBuilder("f")
             .select()
             .where("owner_user_id = :owner_user_id AND name =:name", { owner_user_id: owner_user_id, name: name })
