@@ -46,10 +46,11 @@ export default Router()
     const page = req.query.page ? parseInt(req.query.page as string) : 1
 
     const company_id = await CompanyController.getCompanyIdIndependent(res.locals.user_id)
-    const found = (await FileController.find(company_id, email, name, page))
 
-    if (found.length != 1) res.send(found)
+    let foundFiles = await FileController.findAccessibleFiles(company_id, res.locals.user_id, email, name, page)
 
-    res.download(`${uploadsFolder}/${found[0].path}/${found[0].name}`, found[0].name)
+    if (foundFiles.length != 1) res.send(foundFiles)
+
+    res.download(`${uploadsFolder}/${foundFiles[0].owner}/${foundFiles[0].name}`, foundFiles[0].name)
 })
 

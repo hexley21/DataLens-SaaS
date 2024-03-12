@@ -15,6 +15,14 @@ export class FileAccessController extends IController<AccessEntity> {
         super(AppDataSource.getRepository(AccessEntity), "fa");
     }
 
+    
+    public async hasAccessByFile(file_id: string, user_id: string): Promise<AccessEntity[]> {
+        return (await this.createQueryBuilder("fa")
+            .select()
+            .where("file_id =:file_id AND user_id = :user_id", { file_id: file_id,  })
+            .getMany())
+    }
+
     public async setAccess(file: FileEntity, userEmails: string[] = []): Promise<void> {
 
 
