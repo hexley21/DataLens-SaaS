@@ -42,8 +42,8 @@ export class FileAccessController extends IController<AccessEntity> {
     }
 
 
-    public async addAccess(file_id: string, company_id: string, userEmails: string[] = []): Promise<void> {
-        if (!userEmails || userEmails.length == 0) {
+    public async addAccess(file_id: string, company_id: string, user_emails: string[] = []): Promise<void> {
+        if (!user_emails || user_emails.length == 0) {
             await this.accessEveryone(file_id);
             return;
         }
@@ -53,7 +53,7 @@ export class FileAccessController extends IController<AccessEntity> {
             .leftJoin(EmployeeEntity, "e", "u.id = e.user_id")
             .select("u.id as user_id, u.email as email, c.id as company_self_id, e.company_id as employee_company_id")
             .from(UserEntity, "u")
-            .where("u.email IN (:...emails) AND (c.id = :company_id OR e.company_id = :company_id)", { emails: userEmails, company_id: company_id })
+            .where("u.email IN (:...emails) AND (c.id = :company_id OR e.company_id = :company_id)", { emails: user_emails, company_id: company_id })
             .getRawMany() as { user_id: string, email: string, company_self_id: string, employee_company_id: string }[]
 
         await this.createQueryBuilder()

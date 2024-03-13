@@ -10,15 +10,15 @@ import { uploadFile, uploadsFolder } from "../../middlewares/uploadFile.js";
 import FileController from "../../controllers/files/FileController.js";
 import FileAccessController from "../../controllers/files/FileAccessController.js";
 import CompanyController from "../../controllers/users/CompanyController.js";
+import { incrementFileCount } from "../../middlewares/subscription.js";
 
 
 export default Router()
-.post("/", authentication, isActive, uploadFile("csv", "xls", "xlsx"), async (req: Request, res: Response) => {
-    if (!req.file) throw createHttpError(500, "No file uploaded")
+.post("/", authentication, isActive, incrementFileCount, uploadFile("csv", "xls", "xlsx"), async (req: Request, res: Response) => {
 
-    await FileController.insert(res.locals.company_id, res.locals.user_id, req.file.originalname, parseVisibleTo(req.query.visible_to as string | undefined))
+    await FileController.insert(res.locals.company_id, res.locals.user_id, req.file!.originalname, parseVisibleTo(req.query.visible_to as string | undefined))
   
-    res.send(`File uploaded successfully: ${req.file.originalname}`);
+    res.send(`File uploaded successfully: ${req.file!.originalname}`);
   })
 .delete("/:name", authentication, isActive, async (req: Request, res: Response) => {
 

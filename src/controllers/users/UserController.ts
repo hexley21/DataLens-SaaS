@@ -10,6 +10,7 @@ import EmployeeRepository from "../../repository/EmployeeRepository.js";
 import UserRepository from "../../repository/UserRepository.js";
 import BasicEncriptionManager from "../../managers/BasicEncriptionManager.js";
 import IEncriptionManager from "../../common/interfaces/managers/IEncriptionManager.js";
+import SubscriptionController from "../subscriptions/SubscriptionController.js";
 
 
 export class UserController extends IController<UserEntity> {
@@ -30,6 +31,7 @@ export class UserController extends IController<UserEntity> {
             case RoleEnum.COMPANY:
                 return await CompanyRepository.activate(user_id)
             case RoleEnum.EMPLOYEE:
+                await SubscriptionController.changeUserCount(user_id, 1)
                 return await EmployeeRepository.activate(user_id)
         }
 

@@ -76,6 +76,35 @@ CREATE TABLE IF NOT EXISTS subscription.record(
 ALTER TABLE USERS.COMPANY ADD COLUMN IF NOT EXISTS subscription_id UUID REFERENCES subscription.record(id) ON DELETE RESTRICT;
 
 
+-- First, create a function that will be triggered
+CREATE OR REPLACE FUNCTION check_subscription_limits()
+RETURNS TRIGGER AS $$
+DECLARE
+    tier subscription.tier%ROWTYPE;
+BEGIN
+    -- Retrieve the current tier row to examine file_limit, user_limit, file_price, and user_price
+    SELECT * INTO tier FROM subscription.tier WHERE id = NEW.tier_id;
+
+    -- Check file limits only if file_price is NULL or file_limit is exceeded when file_price is present
+    IF (NEW.files_uploaded > tier.file_limit AND tier.file_limit IS NOT NULL AND tier.file_price IS NULL) THEN
+        RAISE EXCEPTION 'Updated file count exceeds tier limits.';
+    END IF;
+
+    -- Check user limits only if user_price is NULL or user_limit is exceeded when user_price is present
+    IF (NEW.user_count > tier.user_limit AND tier.user_limit IS NOT NULL AND tier.user_price IS NULL) THEN
+        RAISE EXCEPTION 'Updated user count exceeds tier limits.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER check_limits_before_update
+BEFORE UPDATE ON subscription.record
+FOR EACH ROW
+EXECUTE FUNCTION check_subscription_limits();
+
+
 CREATE TABLE IF NOT EXISTS files.file (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     owner_company_id UUID REFERENCES users.company(id) ON DELETE CASCADE NOT NULL,

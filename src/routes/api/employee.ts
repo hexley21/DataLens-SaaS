@@ -15,6 +15,7 @@ import { QueryFailedError } from "typeorm";
 
 import isRole from "../../middlewares/role.js";
 import isEmailTaken from "../../middlewares/email.js";
+import { changeUserCount } from "../../middlewares/subscription.js";
 
 
 export default Router()
@@ -34,7 +35,7 @@ export default Router()
 
     res.send(`The invitation email was sent to: ${email}`);
 })
-.delete("/:email", authentication, isRole(RoleEnum.COMPANY), async (req: Request, res: Response) => {
+.delete("/:email", authentication, isRole(RoleEnum.COMPANY), changeUserCount(-1), async (req: Request, res: Response) => {
     const email = req.params.email
     const employee = await EmployeeController.findByEmail(email)
     const thisCompany = await CompanyController.findByUserId(res.locals.user_id)
