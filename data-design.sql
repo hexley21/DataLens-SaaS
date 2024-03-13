@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS subscription.tier(
 CREATE TABLE IF NOT EXISTS users.company(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     user_id UUID REFERENCES users.user(id) ON DELETE CASCADE NOT NULL,
-    company_name VARCHAR(64) UNIQUE CHECK(company_name ~ '^(?!\s)(?!.*\s$)(?=.*[a-zA-Z0-9])[a-zA-Z0-9 ''~?!]{2,}$') NOT NULL,
+    company_name VARCHAR(64) CHECK(company_name ~ '^(?!\s)(?!.*\s$)(?=.*[a-zA-Z0-9])[a-zA-Z0-9 ''~?!]{2,}$') NOT NULL,
     industry VARCHAR(8) REFERENCES industries(id) ON DELETE  SET DEFAULT DEFAULT 'ELSE' NOT NULL,
     country VARCHAR(2) REFERENCES countries(id) ON DELETE RESTRICT NOT NULL
 );
