@@ -79,8 +79,8 @@ ALTER TABLE USERS.COMPANY ADD COLUMN IF NOT EXISTS subscription_id UUID REFERENC
 CREATE TABLE IF NOT EXISTS files.file (
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
     owner_company_id UUID REFERENCES users.company(id) ON DELETE CASCADE NOT NULL,
-    owner_user_id UUID REFERENCES users.user(id) ON DELETE CASCDE NOT NULL,
-    name VARCHAR(64) NOT NULL,
+    owner_user_id UUID REFERENCES users.user(id) ON DELETE CASCADE NOT NULL,
+    name VARCHAR(64) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS files.access (
