@@ -10,6 +10,8 @@ import BasicEmailManager from "../../../managers/BasicEmailManager.js";
 import AppDataSource from "../../../data/AppDataSource.js";
 
 import UserEntity from "../../../models/entities/users/UserEntity.js";
+import CompanyEntity from "../../../models/entities/users/CompanyEntity.js";
+import EmployeeEntity from "../../../models/entities/users/EmployeeEntity.js";
 
 
 export default abstract class IUserRepository<E> {
@@ -40,6 +42,20 @@ export default abstract class IUserRepository<E> {
             .set({ salt: salt, hash: hash})
             .where("id = :user_id", { user_id: user_id })
             .execute()
+    }
+
+
+    public async findCompanyUsersByEmails(company_id:string, user_emails?: string[]) {
+        if (!user_emails || user_emails.length === 0) return null
+
+        const users = await AppDataSource.createQueryBuilder(UserEntity, "u")
+            .leftJoin(CompanyEntity, "c", "u.id = c.user_id")
+            .leftJoin(EmployeeEntity, "e", "u.id = e.user_id")
+            .select("u.id as user_id, u.email as email, COALESCE(c.id, e.company_id) AS company_id")
+            .where("u.email IN (:...emails) AND COALESCE(c.id, e.company_id) = :company_id", { emails: user_emails, company_id: company_id })
+            .getRawMany() as { user_id: string, email: string, company_id: string }[]
+
+        return users
     }
 
     public async findUserByEmail(email?: string): Promise<UserEntity | null > {

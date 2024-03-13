@@ -11,6 +11,8 @@ import UserRepository from "../../repository/UserRepository.js";
 import BasicEncriptionManager from "../../managers/BasicEncriptionManager.js";
 import IEncriptionManager from "../../common/interfaces/managers/IEncriptionManager.js";
 import SubscriptionController from "../subscriptions/SubscriptionController.js";
+import RecordEntity from "../../models/entities/subscription/RecordEntity.js";
+import createHttpError from "http-errors";
 
 
 export class UserController extends IController<UserEntity> {
@@ -31,11 +33,10 @@ export class UserController extends IController<UserEntity> {
             case RoleEnum.COMPANY:
                 return await CompanyRepository.activate(user_id)
             case RoleEnum.EMPLOYEE:
-                await SubscriptionController.changeUserCount(user_id, 1)
                 return await EmployeeRepository.activate(user_id)
         }
 
-        throw Error("This user does not exists")
+        throw createHttpError(404, "This user does not exists")
     }
 
     public async authenticateUser(email?: string, password?: string): Promise<string | null> {
@@ -71,8 +72,11 @@ export class UserController extends IController<UserEntity> {
         await this.userRepository.changePassword(user_id, newPassword)
     }
 
-public async deleteUser(user_id: string): Promise<void | never> {
-        await this.deleteBy({ id: user_id})
+    public async deleteUser(user_id: string): Promise<void | never> {
+        await this.createQueryBuilder()
+            .delete()
+            .where({ id: user_id})
+            .execute()
     }
 
     public async findById(user_id: string): Promise<UserEntity | null> {

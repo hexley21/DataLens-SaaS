@@ -13,6 +13,7 @@ import BasicFileManager from "../../managers/BasicFileManager.js";
 
 import UserController from "../users/UserController.js";
 
+import AccessEntity from "../../models/entities/files/AccessEntity.js";
 import FileAccessController from "./FileAccessController.js";
 
 
@@ -21,7 +22,7 @@ export class FileController extends IController<FileEntity> {
 
     constructor() {
         super(AppDataSource.getRepository(FileEntity), "u");
-        this.fileManager = BasicFileManager
+        this.fileManager = BasicFileManager;
     }
 
     public async delete(owner_user_id: string, name: string): Promise<void | never> {
@@ -37,15 +38,21 @@ export class FileController extends IController<FileEntity> {
                 .where("owner_user_id = :owner_user_id", { owner_user_id: owner_user_id })
                 .andWhere("name = :name", { name: name})
                 .execute()).affected
+            
 
-            if (affected && affected > 0) await this.fileManager.deleteFile((await UserController.findById(owner_user_id))!.email, name)
+            if (affected && affected > 0) {
+                await this.fileManager.deleteFile((await UserController.findById(owner_user_id))!.email, name)
+            }
                 
-            transaction.commitTransaction()
+            await transaction.commitTransaction()
         }
         catch (e) {
-            transaction.rollbackTransaction()
+            await transaction.rollbackTransaction()
             if (e instanceof QueryFailedError) throw createHttpError(400, e.message)
             throw createHttpError(500, (e as Error).message)
+        }
+        finally {
+            await transaction.release()
         }
 
         if (!affected || affected == 0) throw createHttpError(404, "File not found")
@@ -53,17 +60,37 @@ export class FileController extends IController<FileEntity> {
     }
 
     public async insert(owner_company_id: string, owner_user_id: string, name: string, allowed_users?: string[]): Promise<string | undefined> {
-        let newFile = ((await this.createQueryBuilder("f")
-            .insert()
-            .values({ owner_company_id: owner_company_id, owner_user_id: owner_user_id, name: name })
-            .returning("*")
-            .execute()).generatedMaps as FileEntity[])[0]
+        const transaction = AppDataSource.createQueryRunner()
 
-        if ('{}' === JSON.stringify(newFile)) newFile = (await this.findFilesOfOwner(owner_user_id, name))!
+        await transaction.startTransaction()
 
-        if (allowed_users && allowed_users.length > 0)  await FileAccessController.addAccess(newFile.id, newFile.owner_company_id, allowed_users)
+        try {
+            let newFile = ((await transaction.manager.createQueryBuilder(FileEntity, "f")
+                .insert()
+                .values({ owner_company_id: owner_company_id, owner_user_id: owner_user_id, name: name })
+                .returning("*")
+                .execute()).generatedMaps as FileEntity[])[0]
 
-        return newFile.id;
+            if ('{}' === JSON.stringify(newFile)) newFile = (await this.findFilesOfOwner(owner_user_id, name))!
+
+
+            if (allowed_users && allowed_users.length > 0)  {
+                await FileAccessController.addAccess(newFile.id, owner_company_id, allowed_users, transaction.manager.createQueryBuilder(AccessEntity, "fa"))
+            }
+            else {
+                FileAccessController.accessEveryone(newFile.id, transaction.manager.createQueryBuilder(AccessEntity, "fa"))
+            }
+
+            await transaction.commitTransaction()
+            return newFile.id;
+        }
+        catch (e) {
+            await transaction.rollbackTransaction()
+            throw e
+        }
+        finally {
+            await transaction.release()
+        }
     }
 
 
@@ -84,8 +111,6 @@ export class FileController extends IController<FileEntity> {
 
 
             if (email) filesQuery.andWhere("u.email = :email", { email: email })
-
-            // if (name) filesQuery.andWhere("f.name = :name", { name: name })
 
 
         return (await filesQuery.limit(page * parseInt(process.env.ITEMS_PER_PAGE!)).getRawMany() as { owner: string, name: string }[])

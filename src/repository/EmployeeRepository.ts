@@ -49,7 +49,6 @@ export class EmployeeRepository extends IUserRepository<EmployeeEntity> {
     public async addUser(email: string, company_id: string, ): Promise<string | never> {
         
         const transaction = AppDataSource.createQueryRunner()
-
         await transaction.startTransaction()
         
         try {

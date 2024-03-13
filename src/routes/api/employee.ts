@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import Router from "express-promise-router";
 
 import createHttpError from "http-errors";
@@ -15,8 +15,6 @@ import { QueryFailedError } from "typeorm";
 
 import isRole from "../../middlewares/role.js";
 import isEmailTaken from "../../middlewares/email.js";
-import { changeUserCount } from "../../middlewares/subscription.js";
-import SubscriptionController from "../../controllers/subscriptions/SubscriptionController.js";
 
 
 export default Router()
@@ -30,19 +28,24 @@ export default Router()
         await RegisterController.registerEmployee(email, company_id )
     }
     catch(e) {
-        if (e instanceof QueryFailedError) throw createHttpError(400, "Invalid arguments!")
+        if (e instanceof QueryFailedError) {
+            if (e.message.includes("exceeds")) throw createHttpError(409, e.message)
+            throw createHttpError(400, "Invalid arguments!")
+        }
         throw createHttpError(500, (e as Error).message)
     }
 
     res.send(`The invitation email was sent to: ${email}`);
 })
-.delete("/:email", authentication, isRole(RoleEnum.COMPANY), changeUserCount(-1), async (req: Request, res: Response) => {
+.delete("/:email", authentication, isRole(RoleEnum.COMPANY), async (req: Request, res: Response) => {
     const email = req.params.email
+
     const employee = await EmployeeController.findByEmail(email)
     const thisCompany = await CompanyController.findByUserId(res.locals.user_id)
     
-    if ((!employee) || (!thisCompany) || (employee.company_id != thisCompany.id)) throw createHttpError("404", "User was not found")
+    if ((!employee) || (!thisCompany) || (employee.company_id != thisCompany.id)) throw createHttpError(404, "User was not found")
+
     await UserController.deleteUser(employee.user_id)
-    await SubscriptionController.changeUserCount(res.locals.user_id, -1)
+
     res.send(`Employee: ${req.params.email} was removed`);
 })

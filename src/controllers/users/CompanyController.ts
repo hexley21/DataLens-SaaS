@@ -9,6 +9,7 @@ import RoleEnum from "../../models/entities/enum/RoleEnum.js";
 import EmployeeController from "./EmployeeController.js";
 import createHttpError from "http-errors";
 import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity.js";
+import EmployeeEntity from "../../models/entities/users/EmployeeEntity.js";
 
 
 export class CompanyController extends IController<CompanyEntity> {
@@ -74,14 +75,12 @@ export class CompanyController extends IController<CompanyEntity> {
     }
 
     public async getCompanyIdIndependent(user_id: string): Promise<string> {
-        const user = (await UserController.findById(user_id))!
-
-        switch (user.role) {
-            case RoleEnum.COMPANY:
-                return (await this.findByUserId(user.id))!.id
-            case RoleEnum.EMPLOYEE:
-                return (await EmployeeController.findByUserId(user.id))!.company_id
-        }
+        return ((await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
+            .select("COALESCE(c.id, e.company_id)", "company_id")
+            .leftJoin(CompanyEntity, "c", "c.user_id = u.id")
+            .leftJoin(EmployeeEntity, "e", "e.user_id = u.id")
+            .where("u.id = :user_id", { user_id: user_id })
+            .getRawOne()) as { company_id: string}).company_id;
     }
 
 

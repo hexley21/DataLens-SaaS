@@ -35,18 +35,6 @@ CREATE TABLE IF NOT EXISTS users.user(
     salt VARCHAR(64) NOT NULL CHECK(LENGTH(salt) = 64)
 );
 
-
-CREATE TABLE IF NOT EXISTS subscription.tier(
-    id SERIAL PRIMARY KEY NOT NULL,
-    name VARCHAR(64) NOT NULL,
-    file_limit INTEGER CHECK((file_limit > 0)),
-    user_limit INTEGER CHECK((user_limit > 0)),
-    price money NOT NULL CHECK(price >= '$0'),
-    file_price money CHECK(file_price >= '$0'),
-    user_price money CHECK(user_price >= '$0'),
-    UNIQUE(name)
-);
-
 CREATE TABLE IF NOT EXISTS users.company(
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     user_id UUID REFERENCES users.user(id) ON DELETE CASCADE NOT NULL,
@@ -61,6 +49,16 @@ CREATE TABLE IF NOT EXISTS users.employee(
     company_id UUID REFERENCES users.company(id) ON DELETE CASCADE NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS subscription.tier(
+    id SERIAL PRIMARY KEY NOT NULL,
+    name VARCHAR(64) NOT NULL,
+    file_limit INTEGER CHECK((file_limit > 0)),
+    user_limit INTEGER CHECK((user_limit > 0)),
+    price money NOT NULL CHECK(price >= '$0'),
+    file_price money CHECK(file_price >= '$0'),
+    user_price money CHECK(user_price >= '$0'),
+    UNIQUE(name)
+);
 
 CREATE TABLE IF NOT EXISTS subscription.record(
     id UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
@@ -76,33 +74,6 @@ CREATE TABLE IF NOT EXISTS subscription.record(
 ALTER TABLE USERS.COMPANY ADD COLUMN IF NOT EXISTS subscription_id UUID REFERENCES subscription.record(id) ON DELETE RESTRICT;
 
 
--- First, create a function that will be triggered
-CREATE OR REPLACE FUNCTION check_subscription_limits()
-RETURNS TRIGGER AS $$
-DECLARE
-    tier subscription.tier%ROWTYPE;
-BEGIN
-    -- Retrieve the current tier row to examine file_limit, user_limit, file_price, and user_price
-    SELECT * INTO tier FROM subscription.tier WHERE id = NEW.tier_id;
-
-    -- Check file limits only if file_price is NULL or file_limit is exceeded when file_price is present
-    IF (NEW.files_uploaded > tier.file_limit AND tier.file_limit IS NOT NULL AND tier.file_price IS NULL) THEN
-        RAISE EXCEPTION 'Updated file count exceeds tier limits.';
-    END IF;
-
-    -- Check user limits only if user_price is NULL or user_limit is exceeded when user_price is present
-    IF (NEW.user_count > tier.user_limit AND tier.user_limit IS NOT NULL) THEN
-        RAISE EXCEPTION 'Updated user count exceeds tier limits.';
-    END IF;
-
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE OR REPLACE TRIGGER check_limits_before_update
-BEFORE UPDATE ON subscription.record
-FOR EACH ROW
-EXECUTE FUNCTION check_subscription_limits();
 
 
 CREATE TABLE IF NOT EXISTS files.file (
@@ -118,34 +89,47 @@ CREATE TABLE IF NOT EXISTS files.access (
     user_id UUID REFERENCES users.user(id) ON DELETE CASCADE NOT NULL
 );
 
-CREATE OR REPLACE FUNCTION check_unique_user_file()
+
+-- Checks for ecah inserted file for uniqueness and increments the file_count
+CREATE OR REPLACE FUNCTION check_unique_file_and_increment_count()
 RETURNS TRIGGER AS $$
+DECLARE
+    _subscription_id UUID;
 BEGIN
 
-  IF NEW.name !~ '^[0-9a-zA-Z_\-. ]+$' THEN
-    RAISE EXCEPTION 'Invalid file name: %', NEW.name;
-  END IF;
+    IF NEW.name !~ '^[0-9a-zA-Z_\-. ]+$' THEN
+        RAISE EXCEPTION 'Invalid file name: %', NEW.name;
+    END IF;
 
-  -- Check for existing file with the same name and owner_user_id
-  IF EXISTS (
-    SELECT 1
-    FROM files.file
-    WHERE owner_user_id = NEW.owner_user_id
-    AND name = NEW.name
-  )
-  THEN
-    -- Just pass without inserting or updating
-    RETURN NULL;
-  END IF;
+    -- Check for existing file with the same name and owner_user_id
+    IF EXISTS (
+        SELECT 1
+        FROM files.file
+        WHERE owner_user_id = NEW.owner_user_id
+        AND name = NEW.name
+    )
+    THEN
+        RETURN NULL;
+    END IF;
 
-  RETURN NEW;
+    -- finds current subscription_id of file owner compa
+    SELECT subscription_id INTO _subscription_id
+    FROM users.company
+    WHERE id = NEW.owner_company_id;
+  
+    IF _subscription_id IS NOT NULL THEN
+        UPDATE subscription.record
+        SET files_uploaded = files_uploaded + 1
+        WHERE id = _subscription_id;
+    END IF;
+  
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE TRIGGER trigger_check_unique_user_file
+CREATE OR REPLACE TRIGGER trigger_on_file_insert_update
 BEFORE INSERT OR UPDATE ON files.file
-FOR EACH ROW EXECUTE FUNCTION check_unique_user_file();
-
+FOR EACH ROW EXECUTE FUNCTION check_unique_file_and_increment_count();
 
 
 CREATE OR REPLACE FUNCTION prevent_duplicate_access()
@@ -159,10 +143,8 @@ BEGIN
         WHERE file_id = NEW.file_id AND user_id = NEW.user_id
     ) 
     THEN 
-        -- If it exists, do nothing
         RETURN NULL;
     ELSE 
-        -- If it does not exist, allow the insert/update
         RETURN NEW;
     END IF;
 END;
@@ -173,6 +155,114 @@ CREATE OR REPLACE TRIGGER check_duplicate_access
 BEFORE INSERT OR UPDATE ON files.access
 FOR EACH ROW EXECUTE FUNCTION prevent_duplicate_access();
 
+
+-- First, create a function that will be triggered
+CREATE OR REPLACE FUNCTION check_subscription_limits()
+RETURNS TRIGGER AS $$
+DECLARE
+    tier subscription.tier%ROWTYPE;
+BEGIN
+    -- Retrieve the current tier row to examine file_limit, user_limit, file_price, and user_price
+    SELECT * INTO tier FROM subscription.tier WHERE id = NEW.tier_id;
+
+    -- Check file limits only if file_price is NULL or file_limit is exceeded when file_price is present
+    IF (NEW.files_uploaded > tier.file_limit AND tier.file_limit IS NOT NULL AND tier.file_price IS NULL) THEN
+        RAISE EXCEPTION 'File count exceeds tier limits.';
+    END IF;
+
+    -- Check user limits only if user_price is NULL or user_limit is exceeded when user_price is present
+    IF (NEW.user_count > tier.user_limit AND tier.user_limit IS NOT NULL) THEN
+        RAISE EXCEPTION 'User count exceeds tier limits.';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER check_limits_before_update
+BEFORE UPDATE ON subscription.record
+FOR EACH ROW
+EXECUTE FUNCTION check_subscription_limits();
+
+
+CREATE OR REPLACE FUNCTION decrement_files_uploaded() 
+RETURNS TRIGGER AS $$
+DECLARE
+    _subscription_id UUID;
+    _files_uploaded INTEGER;
+BEGIN
+    -- Find the related subscription_id for the owner_company_id
+    SELECT id, files_uploaded INTO _subscription_id
+    FROM subscription.record 
+    WHERE company_id = OLD.owner_company_id;
+    
+    -- Decrement files_uploaded by 1 for the found subscription_id
+    IF _subscription_id IS NOT NULL AND _files_uploaded > 0 THEN
+        UPDATE subscription.record
+        SET files_uploaded = files_uploaded - 1
+        WHERE id = _subscription_id;
+    END IF;
+    
+    RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE TRIGGER file_deletion_trigger
+AFTER DELETE ON files.file
+FOR EACH ROW
+EXECUTE FUNCTION decrement_files_uploaded();
+
+
+
+
+-- increment user_count
+CREATE OR REPLACE FUNCTION on_employee_insert()
+RETURNS TRIGGER AS $$
+DECLARE
+    _subscription_id UUID;
+BEGIN
+
+    SELECT company.subscription_id INTO _subscription_id
+    FROM users.company AS company
+    WHERE company.id = NEW.company_id;
+    
+    UPDATE subscription.record
+    SET user_count = user_count + 1
+    WHERE id = _subscription_id;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER on_employee_insert
+AFTER INSERT ON users.employee
+FOR EACH ROW
+EXECUTE FUNCTION on_employee_insert();
+
+
+CREATE OR REPLACE FUNCTION on_employee_delete()
+RETURNS TRIGGER AS $$
+    -- Declaring variable to store subscription_id
+DECLARE
+    _subscription_id UUID;
+BEGIN
+    -- Get subscription_id from company by the deleted employee's company_id
+    SELECT company.subscription_id INTO _subscription_id
+    FROM users.company AS company
+    WHERE company.id = OLD.company_id;
+    -- Decrement the users_count in subscription.records
+    UPDATE subscription.record
+    SET user_count = user_count - 1
+    WHERE id = _subscription_id; -- Prevent negative counts
+RETURN OLD;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE TRIGGER on_employee_delete
+AFTER DELETE ON users.employee
+FOR EACH ROW
+EXECUTE FUNCTION on_employee_delete();
 
 INSERT INTO COUNTRIES ("id", "name") VALUES (E'AF', E'Afghanistan');
 INSERT INTO COUNTRIES ("id", "name") VALUES (E'AX', E'Åland Islands');

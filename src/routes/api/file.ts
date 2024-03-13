@@ -10,11 +10,10 @@ import { uploadFile, uploadsFolder } from "../../middlewares/uploadFile.js";
 import FileController from "../../controllers/files/FileController.js";
 import FileAccessController from "../../controllers/files/FileAccessController.js";
 import CompanyController from "../../controllers/users/CompanyController.js";
-import { incrementFileCount } from "../../middlewares/subscription.js";
 
 
 export default Router()
-.post("/", authentication, isActive, incrementFileCount, uploadFile("csv", "xls", "xlsx"), async (req: Request, res: Response) => {
+.post("/", authentication, isActive, uploadFile("csv", "xls", "xlsx"), async (req: Request, res: Response) => {
 
     await FileController.insert(res.locals.company_id, res.locals.user_id, req.file!.originalname, parseVisibleTo(req.query.visible_to as string | undefined))
   
@@ -31,13 +30,11 @@ export default Router()
 })
 .get("/", authentication, isActive, async (req: Request, res: Response) => {
 
-    const email = req.query.email as string
-    const name = req.query.name as string
     const page = req.query.page ? parseInt(req.query.page as string) : 1
 
     const company_id = await CompanyController.getCompanyIdIndependent(res.locals.user_id)
 
-    let foundFiles = await FileController.findAccessibleFiles(company_id, res.locals.user_id, email, name, page)
+    let foundFiles = await FileController.findAccessibleFiles(company_id, res.locals.user_id, undefined, undefined, page)
 
     if (foundFiles.length != 1) {
         res.send(foundFiles)
@@ -76,5 +73,7 @@ export default Router()
 
 
 function parseVisibleTo(query?: string) {
-    return query ? (query as string).replace(" ", "").split(',') : []
+    const res =  query ? (query as string).replace(" ", "").split(',') : []
+
+    return res;
 }

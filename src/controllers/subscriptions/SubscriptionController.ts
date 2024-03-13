@@ -13,32 +13,6 @@ class SubscriptionController extends IController<RecordEntity> {
         super(AppDataSource.getRepository(RecordEntity), "sr")
     }
 
-    
-
-    public async changeFileCount(user_id: string, value: number) {
-        const operation = value < 0 ? "" : "+"
-
-        await this.createQueryBuilder()
-            .update()
-            .set({ 
-                files_uploaded: () => `files_uploaded ${operation}${value}`
-            })
-            .where("id = :id", { id: await this.getSubscriptionIdIndependent(user_id) })
-            .execute();
-    }
-
-    public async changeUserCount(user_id: string, value: number) {
-        const operation = value < 0 ? "" : "+"
-
-        await this.createQueryBuilder()
-            .update()
-            .set({ 
-                user_count: () => `user_count ${operation}${value}`
-            })
-            .where("id = :id", { id: await this.getSubscriptionIdIndependent(user_id) })
-            .execute();
-    }
-
 
     public async changeTier(user_id: string, tier: TiersEnum) {
         const subscription_id = await this.getSubscriptionIdIndependent(user_id)
