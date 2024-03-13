@@ -7,6 +7,8 @@ import UserEntity from "../../models/entities/users/UserEntity.js";
 import UserController from "./UserController.js";
 import RoleEnum from "../../models/entities/enum/RoleEnum.js";
 import EmployeeController from "./EmployeeController.js";
+import createHttpError from "http-errors";
+import { QueryDeepPartialEntity } from "typeorm/query-builder/QueryPartialEntity.js";
 
 
 export class CompanyController extends IController<CompanyEntity> {
@@ -21,10 +23,7 @@ export class CompanyController extends IController<CompanyEntity> {
     }
 
     public async updateData(user_id: string, email?: string, company_name?: string, industry?: string, country?: string): Promise<void | never> {
-        if (!email && !company_name && !industry && !country)  {
-            throw Error("Nothing provided")
-        }
-        
+        if (!email && !company_name && !industry && !country)  throw createHttpError(400, "No arguments provided")
 
         if (email) {
             const newEmailUser = await UserController.findByEmail(email)
@@ -34,11 +33,12 @@ export class CompanyController extends IController<CompanyEntity> {
                 console.log(`Delete inactivate user ${email} with id: ${newEmailUser.id}`)
             } 
             else if (newEmailUser && newEmailUser.id === user_id) {
-                throw new Error("You can't update your email to your email")
+                throw createHttpError(409, "You can't update your email to your email")
             }
             else if (newEmailUser && newEmailUser.registration_date) {
-                throw new Error("This email is already taken by other user")
+                throw createHttpError(409, "This email is already taken by other user")
             }
+
             await this.createTypedQueryBuilder(UserEntity, "u")
                 .update()
                 .set({ email: email })
@@ -46,21 +46,24 @@ export class CompanyController extends IController<CompanyEntity> {
                 .execute()
         }
 
+
         if (!company_name && !industry && !country) return;
 
+        let updateColumns: {company_name?: string, industry?: string, country?: string } = {}
+
         const company = await this.findByUserId(user_id)
-        if (!company) throw Error("This company does not exist")
 
-        const updateQuery = this.createQueryBuilder()
-            .update()
+        if (!company) throw createHttpError(404, "This company does not exist")
 
-        
-        if (company_name) updateQuery.set({ company_name: company_name })
-        if (industry) updateQuery.set({ industry: industry })
-        if (country) updateQuery.set({ country: country })
+        if (company_name) updateColumns.company_name = company_name;
+        if (industry) updateColumns.industry = industry;
+        if (country) updateColumns.country = country;
 
-        updateQuery.where("id = :id", { id: company?.id })
-        await updateQuery.execute();
+        await this.createQueryBuilder()
+                .update()
+                .set(updateColumns)
+                .where("id = :id", { id: company?.id })
+                .execute()
     }
 
     public async findByCompanyId(id: string) {
