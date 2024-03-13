@@ -1,29 +1,34 @@
 version: '3.8'
 services:
-  mail:
-    image: ghcr.io/docker-mailserver/docker-mailserver:latest
-    container_name: datalens-mail
-    hostname: datalens.saas.com
-    ports:
-      - "25:25"
-      - "465:465"
-      - "587:587"
-      - "993:993"
-    volumes:
-      - ./docker-data/mailserver/dms/mail-data/:/var/mail/
-      - ./docker-data/mailserver/dms/mail-state/:/var/mail-state/
-      - ./docker-data/mailserver/dms/mail-logs/:/var/log/mail/
-      - ./docker-data/mailserver/dms/config/:/tmp/docker-mailserver/
-      - /etc/localtime:/etc/localtime:ro
-    environment:
-      - ENABLE_RSPAMD=1
-      - ENABLE_CLAMAV=1
-      - ENABLE_SPAMASSASSIN=1
-      - ENABLE_POSTGREY=1
-      - ENABLE_SASLAUTHD=0
-      - ENABLE_FAIL2BAN=0
-      - ONE_DIR=1
-    restart: always
+  # mail:
+  #   image: ghcr.io/docker-mailserver/docker-mailserver:latest
+  #   container_name: datalens-mail
+  #   hostname: datalens.saas.com
+  #   env_file: $PWD/mailserver.env
+  #   ports:
+  #     - "25:25"
+  #     - "465:465"
+  #     - "587:587"
+  #     - "993:993"
+  #   volumes:
+  #     - ./docker-data/mailserver/dms/mail-data/:/var/mail/
+  #     - ./docker-data/mailserver/dms/mail-state/:/var/mail-state/
+  #     - ./docker-data/mailserver/dms/mail-logs/:/var/log/mail/
+  #     - ./docker-data/mailserver/dms/config/:/tmp/docker-mailserver/
+  #     - /etc/localtime:/etc/localtime:ro
+  #   environment:
+  #     - ENABLE_SPAMASSASSIN=1
+  #     - SPAMASSASSIN_SPAM_TO_INBOX=1
+  #     - ENABLE_CLAMAV=1
+  #     - ENABLE_FAIL2BAN=1
+  #     - ENABLE_POSTGREY=1
+  #     - ENABLE_SASLAUTHD=0
+  #     - ONE_DIR=1
+  #     - DMS_DEBUG=0
+  #   cap_add:
+  #     - NET_ADMIN
+  #     - SYS_PTRACE
+  #   restart: always
   db:
     container_name: datalens-db
     image: postgres:latest
@@ -49,8 +54,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    links:
-      - mail
     build: .
     environment:
       NODE_ENV: production

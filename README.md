@@ -4,16 +4,12 @@ See database design in `data-design.sql` file
 
 ## Setup
 
-1. compose docker with:
+- compose docker with:
 
-    ``` sh
-    docker-compose up --build
-    ```
+``` sh
+docker-compose up --build
+```
 
-2. create email account for docker-mailserver:
+- insert .env file in the root dir of the project (see the .env file in the releases section of this repo)
 
-    ``` sh
-    docker exec datalens-mail setup email add datalens@saas.com 1234
-    ```
-
-It is important to have the `data-design.sql` file, so the database could initialize every table and add all needed data
+- It is important to have the `data-design.sql` file, so the database could initialize every table and add all needed data

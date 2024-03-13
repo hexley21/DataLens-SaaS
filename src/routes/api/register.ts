@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 import Router from "express-promise-router";
 
 import createHttpError from "http-errors";
@@ -30,28 +30,3 @@ export default Router()
     res.send(`${company_name} Confirmation email was sent to: ${email}`)
 })
 
-
-
-
-// async function isEmailTaken(req: Request, res: Response, next: NextFunction): Promise<Response | void> {
-//     const email = req.query.email as string
-
-//     try {
-//         const user = await UserController.findByEmail(email)
-
-//         if (!user) {
-//             return next()
-//         }
-
-//         if (user!.registration_date != null) {
-//             return next(createHttpError(409, "this email is already taken"));
-//         }
-
-//         await UserController.deleteUser(user!.id)
-//         next()
-//     }
-//     catch (e) {
-//         next(createHttpError(500, (e as Error).message))
-//     }
-    
-// }
