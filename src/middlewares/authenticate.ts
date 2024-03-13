@@ -11,7 +11,7 @@ export default async function authentication(req: Request, res: Response, next: 
 
     try {
         res.locals.user_id = verifyToken(token).id;
-        next();
+        return next();
     }
     catch (e) {
         next(createHttpError(403, (e as Error)));
