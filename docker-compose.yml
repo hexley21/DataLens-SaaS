@@ -1,16 +1,5 @@
 version: '3.8'
 services:
-  app:
-    container_name: datalens-node
-    build: .
-    ports:
-      - 8080:8080
-    volumes:
-      - ./uploads:/usr/src/app/uploads
-    depends_on:
-      - db
-    links:
-      - db
   db:
     container_name: datalens-db
     restart: always
@@ -23,3 +12,23 @@ services:
       POSTGRES_PASSWORD: postgres
     volumes:
       - ./data-design.sql:/docker-entrypoint-initdb.d/data-design.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  app:
+    container_name: datalens-node
+    depends_on:
+      db:
+        condition: service_healthy
+    links:
+      - db
+    build: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 8080:8080
+    volumes:
+      - ./uploads:/usr/src/app/uploads
+

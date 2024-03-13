@@ -8,6 +8,4 @@ To start docker:
 docker-compose up --build
 ```
 
-It may not launch on first try, so try to launch the image again
-
-The postgresql database will run throguh a sql `data-design.sql` file only for once
+It is important to have the `data-design.sql` file, so the database could initialize every table and add all needed data
