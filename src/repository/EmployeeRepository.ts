@@ -120,7 +120,7 @@ export class EmployeeRepository extends IUserRepository<EmployeeEntity> {
 
         const confirmationLink = this.generateActivationLink(user_id)
 
-        this.emailManager.sendEmail(
+        await this.emailManager.sendEmail(
             email,
             "Employee email confirmation",
             `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>

@@ -4,7 +4,7 @@ import crypto from "crypto";
 
 
 export class BasicEncriptioManager implements IEncriptioManager {
-    saltLength: number = parseInt(process.env.SALT_LENGTH!);
+    saltLength: number = 64
 
 
     public async encryptPassword(password?: string, salt?: string, length?: number | undefined): Promise<string> | never {

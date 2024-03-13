@@ -4,7 +4,7 @@ import { createTransport } from "nodemailer";
 
 
 const transporter = createTransport({
-    host: "smtp-relay.sendinblue.com",
+    host: "datalens.saas.com",
     port: 587,
     auth: {
         user: process.env.SMTP_EMAIL!,
@@ -14,9 +14,9 @@ const transporter = createTransport({
 
 export class BasicEmailManager implements IEmailManager {
 
-    public sendEmail(to: string, subject: string, html?: string, text?: string, from?: string): void {
-        transporter.sendMail({
-            from: from ?? process.env.DEFAULT_EMAIL!,
+    public async sendEmail(to: string, subject: string, html?: string, text?: string, from?: string): Promise<void> {
+        await transporter.sendMail({
+            from: from ?? process.env.SMTP_EMAIL!,
             to: to,
             subject: subject,
             text: text,

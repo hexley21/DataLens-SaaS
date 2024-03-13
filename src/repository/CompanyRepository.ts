@@ -132,7 +132,7 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
     public async sendActivationEmail(user_id?: string, email?: string, password?: string): Promise<void> {
         const confirmationLink = this.generateActivationLink(user_id)
 
-        this.emailManager.sendEmail(
+        await this.emailManager.sendEmail(
             email!,
             "Company email confirmation",
             `<p>Hello! To confirm email, please click on the following link: <a href=\"${confirmationLink}\">${confirmationLink}</a></p>
