@@ -8,10 +8,3 @@ export async function incrementFileCount(req: Request, res: Response, next: Next
     await SubscriptionController.changeFileCount(res.locals.user_id, 1)
     next()
 }
-
-export function changeUserCount(by: number) {
-    return async(req: Request, res: Response, next: NextFunction) => {
-        await SubscriptionController.changeUserCount(res.locals.user_id, by)
-        next()
-    }
-}

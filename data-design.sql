@@ -91,7 +91,7 @@ BEGIN
     END IF;
 
     -- Check user limits only if user_price is NULL or user_limit is exceeded when user_price is present
-    IF (NEW.user_count > tier.user_limit AND tier.user_limit IS NOT NULL AND tier.user_price IS NULL) THEN
+    IF (NEW.user_count > tier.user_limit AND tier.user_limit IS NOT NULL) THEN
         RAISE EXCEPTION 'Updated user count exceeds tier limits.';
     END IF;
 

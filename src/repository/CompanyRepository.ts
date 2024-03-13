@@ -17,8 +17,7 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
             .leftJoinAndSelect("c.records", "r", "r.id = c.subscription_id")
             .leftJoinAndSelect("c.industry_obj", "i")
             .leftJoinAndSelect("c.country_obj", "co")
-            .leftJoinAndSelect("r.tier", "t")
-            .select("u.email, c.company_name, i.name as industry, co.name as country, t.name as subscription_tier, r.tier_start, r.tier_end, r.files_uploaded, r.user_count, t.price, u.registration_date")
+            .select("u.email, c.company_name, i.name as industry, co.name as country, r.files_uploaded, r.user_count, u.registration_date")
             .where("u.id = :user_id", { user_id: user_id})
             .getRawOne()) as CompanyProfile | null
     }

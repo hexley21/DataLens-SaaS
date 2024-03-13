@@ -16,6 +16,7 @@ import { QueryFailedError } from "typeorm";
 import isRole from "../../middlewares/role.js";
 import isEmailTaken from "../../middlewares/email.js";
 import { changeUserCount } from "../../middlewares/subscription.js";
+import SubscriptionController from "../../controllers/subscriptions/SubscriptionController.js";
 
 
 export default Router()
@@ -42,6 +43,6 @@ export default Router()
     
     if ((!employee) || (!thisCompany) || (employee.company_id != thisCompany.id)) throw createHttpError("404", "User was not found")
     await UserController.deleteUser(employee.user_id)
-    
+    await SubscriptionController.changeUserCount(res.locals.user_id, -1)
     res.send(`Employee: ${req.params.email} was removed`);
 })
