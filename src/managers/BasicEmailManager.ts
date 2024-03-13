@@ -14,16 +14,19 @@ const transporter = createTransport({
 
 export class BasicEmailManager implements IEmailManager {
 
-    public async sendEmail(to: string, subject: string, html?: string, text?: string, from?: string): Promise<void> {
-        await transporter.sendMail({
+    public sendEmail(to: string, subject: string, html?: string, text?: string, from?: string): void {
+        transporter.sendMail({
             from: from ?? process.env.DEFAULT_EMAIL!,
             to: to,
             subject: subject,
             text: text,
             html: html
-        });
+        })
+        .then(() => {
+            console.log(`Email with subject: ${subject} was sent to ${to}`)
 
-        console.log(`Email with subject: ${subject} was sent to ${to}`)
+        })
+
     }
 
 };
