@@ -1,10 +1,9 @@
-import AppDataSource from "../data/AppDataSource.js";
+import AppDataSource from "../../data/AppDataSource.js";
 
-import IController from "../common/interfaces/IController.js";
+import IController from "../../common/interfaces/IController.js";
 
-import EmployeeEntity from "../models/entities/users/EmployeeEntity.js";
-import UserController from "./UserController.js";
-import UserEntity from "../models/entities/users/UserEntity.js";
+import EmployeeEntity from "../../models/entities/users/EmployeeEntity.js";
+import UserEntity from "../../models/entities/users/UserEntity.js";
 import createHttpError from "http-errors";
 
 

@@ -1,63 +1,68 @@
-import { EntityTarget, ObjectLiteral } from "typeorm";
 import { signObjToken } from "../../util/JwtUtils.js";
-import IEmailService from "../IEmailService.js";
-import IEncriptionService from "../IEncriptionService.js";
+
+import IEmailManager from "../managers/IEmailManager.js";
+import IEncriptionManager from "../managers/IEncriptionManager.js";
+
+
+import BasicEncriptionManager from "../../../managers/BasicEncriptionManager.js";
+import BasicEmailManager from "../../../managers/BasicEmailManager.js";
+
 import AppDataSource from "../../../data/AppDataSource.js";
+
 import UserEntity from "../../../models/entities/users/UserEntity.js";
 
-export default abstract class IUserRepository<E> {
-    protected encriptionService: IEncriptionService
-    protected emailService: IEmailService
 
-    constructor(encriptionService: IEncriptionService, emailService: IEmailService) {
-        this.encriptionService = encriptionService;
-        this.emailService = emailService;
+export default abstract class IUserRepository<E> {
+
+    protected dataSource = AppDataSource;
+    protected encriptionManager: IEncriptionManager
+    protected emailManager: IEmailManager
+
+    constructor() {
+        this.encriptionManager = BasicEncriptionManager;
+        this.emailManager = BasicEmailManager;
     }
 
-    /**
-     * @param user_id get's coresponding profile implementation acording
-     * @returns profile instance
-     */
-    public abstract getProfile<T>(user_id: string): Promise<T>
 
+    public abstract getProfile<T>(user_id: string): Promise<T | null>
+    public abstract activate(user_id: string): Promise<string | never>;
+    public abstract sendActivationEmail(user_id?: string, email?: string, password?: string ): Promise<void>
 
-    /**
-     * @param user_id activates user with coresponding id
-     * @returns user_id or throws exception
-     */
-    public abstract activate(user_id: string): Promise<string | never>
+    public abstract findByEmail(email: string): Promise<E | null>;
+    public abstract findByUserId(user_id: string): Promise<E | null>
 
+    public async changePassword(user_id: string, newPassword: string): Promise<void | never> {
+        const salt = this.encriptionManager.getSalt()
+        const hash = await this.encriptionManager.encryptPassword(newPassword, salt)
 
-    /**
-     * @returns found id of implemented entity
-     */
-    public abstract findByEmail(email: string): Promise<E | null>
+        await AppDataSource.createQueryBuilder(UserEntity, "u")
+            .update()
+            .set({ salt: salt, hash: hash})
+            .where("id = :user_id", { user_id: user_id })
+            .execute()
+    }
 
-
-    /**
-     * @returns found if of userEntity
-     */
     public async findUserByEmail(email?: string): Promise<UserEntity | null > {
         if (!email) return null
 
-        return await AppDataSource.createQueryBuilder(UserEntity, "u")
+        return await this.dataSource.createQueryBuilder(UserEntity, "u")
             .select()
             .where("email = :email", { email: email })
             .getOne()
     }
 
-    public async findById(id?: string): Promise<UserEntity | null> {
+    public async findUserById(id?: string): Promise<UserEntity | null> {
         if (!id) return null
         
-        return await AppDataSource.createQueryBuilder(UserEntity, "u")
+        return await this.dataSource.createQueryBuilder(UserEntity, "u")
             .select()
             .where("id = :id", { id: id })
             .getOne()
     }
 
-    
-    public abstract sendActivation(user_id?: string, email?: string, password?: string): void
-
+    public async isActive(id: string): Promise<Boolean> {
+        return (await this.findUserById(id))?.registration_date != null
+    }
 
     protected generateActivationLink(user_id?: string): string {
         if (!user_id) throw Error("user_id is null")

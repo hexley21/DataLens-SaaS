@@ -23,46 +23,22 @@ export default class TierEntity {
     public id!: number
 
     
-    @Column({
-        type: "money",
-        name: "price",
-        nullable: false
-    })
+    @Column({ type: "money", name: "price", nullable: false })
     public price!: number;
 
-    @Column({
-        type: "varchar",
-        name: "name",
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "name", nullable: false })
     public name!: string;
 
-    @Column({
-        type: "integer",
-        name: "file_limit",
-        nullable: true
-    })
+    @Column({ type: "integer", name: "file_limit", nullable: true })
     public file_limit?: number;
 
-    @Column({
-        type: "integer",
-        name: "user_limit",
-        nullable: true
-    })
+    @Column({ type: "integer", name: "user_limit", nullable: true })
     public user_limit?: number;
 
-    @Column({
-        type: "money",
-        name: "file_price",
-        nullable: true
-    })
+    @Column({ type: "money", name: "file_price", nullable: true })
     public file_price?: number;
 
-    @Column({
-        type: "money",
-        name: "user_price",
-        nullable: true
-    })
+    @Column({ type: "money", name: "user_price", nullable: true })
     public user_price?: number;
 
 

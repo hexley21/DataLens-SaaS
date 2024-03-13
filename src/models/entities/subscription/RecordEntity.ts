@@ -25,55 +25,25 @@ export default class RecordEntity {
     @PrimaryGeneratedColumn("uuid")
     public id!: string;
 
-    @Column({
-        type: "varchar",
-        name: "company_id",
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "company_id", nullable: false})
     public company_id!: string;
 
-    @Column({
-        type: "integer",
-        name: "tier_id",
-        nullable: false
-    })
+    @Column({ type: "integer", name: "tier_id", nullable: false })
     public tier_id!: number;
 
-    @Column({
-        type: "date",
-        name: "tier_start",
-        nullable: false
-    })
+    @Column({ type: "date", name: "tier_start", nullable: false })
     public tier_start!: Date;
 
-    @Column({
-        type: "date",
-        name: "tier_end",
-        generatedType: "STORED",
-        asExpression: `tier_start + INTERVAL '1 month'`,
-        nullable: false
-    })
+    @Column({ type: "date", name: "tier_end", generatedType: "STORED", asExpression: `tier_start + INTERVAL '1 month'`,  nullable: false  })
     public tier_end!: Date;
 
-    @Column({
-        type: "date",
-        name: "billed_at",
-        nullable: true
-    })
+    @Column({ type: "date", name: "billed_at", nullable: true })
     public billed_at?: Date;
 
-    @Column({
-        type: "integer",
-        name: "user_count",
-        nullable: false
-    })
+    @Column({ type: "integer", name: "user_count", nullable: false })
     public user_count!: number;
 
-    @Column({
-        type: "integer",
-        name: "files_uploaded",
-        nullable: false
-    })
+    @Column({ type: "integer", name: "files_uploaded", nullable: false })
     public files_uploaded!: number;
 
 

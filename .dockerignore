@@ -1,0 +1,9 @@
+src/
+__tests__/
+node_modules/
+.git/
+jest.config.ts
+LICENSE
+README.md
+tsconfig.json
+.gitignore

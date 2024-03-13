@@ -32,40 +32,19 @@ export default class CompanyEntity {
     @PrimaryGeneratedColumn("uuid")
     public id!: string;
 
-    @Column({
-        type: "uuid",
-        name: "user_id",
-        nullable: false
-    })
+    @Column({ type: "uuid", name: "user_id", nullable: false })
     public user_id!: string;
 
-
-    @Column({
-        type: "uuid",
-        name: "subscription_id",
-        nullable: true
-    })
+    @Column({ type: "uuid", name: "subscription_id", nullable: true })
     public subscription_id?: string;
 
-    @Column({
-        type: "varchar",
-        name: "company_name",
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "company_name", nullable: false })
     public company_name!: string;
 
-    @Column({
-        type: "varchar",
-        name: "industry",
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "industry", nullable: false })
     public industry!: string;
 
-    @Column({
-        type: "varchar",
-        name: "country",
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "country", nullable: false })
     public country!: string;
 
     @ManyToOne(() => IndustriesEntity)

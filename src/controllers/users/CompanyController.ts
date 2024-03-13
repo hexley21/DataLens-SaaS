@@ -1,10 +1,12 @@
-import AppDataSource from "../data/AppDataSource.js";
+import AppDataSource from "../../data/AppDataSource.js";
 
-import IController from "../common/interfaces/IController.js";
+import IController from "../../common/interfaces/IController.js";
 
-import CompanyEntity from "../models/entities/users/CompanyEntity.js";
-import UserEntity from "../models/entities/users/UserEntity.js";
+import CompanyEntity from "../../models/entities/users/CompanyEntity.js";
+import UserEntity from "../../models/entities/users/UserEntity.js";
 import UserController from "./UserController.js";
+import RoleEnum from "../../models/entities/enum/RoleEnum.js";
+import EmployeeController from "./EmployeeController.js";
 
 
 export class CompanyController extends IController<CompanyEntity> {
@@ -60,6 +62,25 @@ export class CompanyController extends IController<CompanyEntity> {
         updateQuery.where("id = :id", { id: company?.id })
         await updateQuery.execute();
     }
+
+    public async findByCompanyId(id: string) {
+        return await this.createQueryBuilder()
+            .select()
+            .where("id =:id", {id: id})
+            .getOne()
+    }
+
+    public async getCompanyIdIndependent(user_id: string): Promise<string> {
+        const user = (await UserController.findById(user_id))!
+
+        switch (user.role) {
+            case RoleEnum.COMPANY:
+                return (await this.findByUserId(user.id))!.id
+            case RoleEnum.EMPLOYEE:
+                return (await EmployeeController.findByUserId(user.id))!.company_id
+        }
+    }
+
 
 }
 

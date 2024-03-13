@@ -6,7 +6,12 @@ export default {
   preset: "ts-jest/presets/default-esm",
   maxWorkers: 1,
   transform: {
-    "^.+\\.m?[tj]s?$": ["ts-jest", { useESM: true }],
+    "^.+\\.m?[tj]s?$": [
+      "ts-jest",
+      {
+        useESM: true, 
+      },
+    ],
   },
   moduleNameMapper: {
     "^(\\.{1,2}/.*)\\.(m)?js$": "$1",

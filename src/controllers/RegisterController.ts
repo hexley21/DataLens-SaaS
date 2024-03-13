@@ -1,7 +1,7 @@
 import RoleEnum from "../models/entities/enum/RoleEnum.js";
 import CompanyRepository from "../repository/CompanyRepository.js";
 import EmployeeRepository from "../repository/EmployeeRepository.js";
-import UserController from "./UserController.js";
+import UserController from "./users/UserController.js";
 
 
 export class RegisterController {
@@ -22,10 +22,10 @@ export class RegisterController {
 
         switch (user.role) {
             case RoleEnum.COMPANY:
-                CompanyRepository.sendActivation(user.id, email)
+                await CompanyRepository.sendActivationEmail(user.id, email)
                 break;
             case RoleEnum.EMPLOYEE:
-                EmployeeRepository.sendActivation(user.id, email)
+                await EmployeeRepository.sendActivationEmail(user.id, email)
                 break;
         }
     }

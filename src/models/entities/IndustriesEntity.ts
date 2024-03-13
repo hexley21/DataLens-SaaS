@@ -10,20 +10,10 @@ export default class IndustriesEntity {
     }
 
 
-    @PrimaryColumn({
-        type: "varchar",
-        name: "id",
-        length: 8,
-        nullable: false
-    })
+    @PrimaryColumn({ type: "varchar", name: "id", length: 8, nullable: false })
     public id!: string
 
-    @Column({
-        type: "varchar",
-        name: "name",
-        length: 64,
-        nullable: false
-    })
+    @Column({ type: "varchar", name: "name", length: 64, nullable: false })
     public name!: string
 
 }
