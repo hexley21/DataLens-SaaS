@@ -32,16 +32,19 @@ export class EmployeeController extends IController<EmployeeEntity> {
     }
 
 
-    public async findEmailsByCompanyUserId(user_id: string): Promise<string[] | null> {
-
+    public async findEmailsByCompanyUserId(user_id: string, page: number = 1): Promise<string[] | null> {
+        if (!page || page < 1) page = 1
+    
         const emails = await this.createQueryBuilder()
             .innerJoin(CompanyEntity, "c", "c.id = e.company_id")
             .leftJoin(UserEntity, "u", "u.id = e.user_id")
             .select("array_agg(u.email) as emails")
             .where("c.user_id =:user_id", { user_id: user_id })
+            .offset((page-1) * parseInt(process.env.ITEMS_PER_PAGE!))
+            .limit(page * parseInt(process.env.ITEMS_PER_PAGE!))
             .getRawOne()
 
-        return emails ? emails : null
+        return emails ? emails : { emails: null }
     }
     
 

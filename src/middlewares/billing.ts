@@ -8,7 +8,6 @@ import TiersEnum from "../models/entities/enum/TiersEnum.js";
 export function hasToPay(condition: boolean = true) {
     return async (req: Request, res: Response, next: NextFunction) => {
         const subscription = await SubscriptionController.findSubscriptionIndependent(res.locals.user_id)
-        console.log("entered")
 
         if (subscription.tier_end <= new Date() && condition) {
             if (subscription.tier_id === TiersEnum.FREE) {
