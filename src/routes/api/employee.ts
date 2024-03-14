@@ -15,13 +15,14 @@ import { QueryFailedError } from "typeorm";
 
 import isRole from "../../middlewares/role.js";
 import isEmailTaken from "../../middlewares/email.js";
+import { hasToPay } from "../../middlewares/billing.js";
 
 
 export default Router()
-.get("/", authentication, isRole(RoleEnum.COMPANY), async (req: Request, res: Response) => {
+.get("/", authentication, isRole(RoleEnum.COMPANY),  hasToPay(), async (req: Request, res: Response) => {
     res.send(await EmployeeController.findEmailsByCompanyUserId(res.locals.user_id))
 })
-.post("/:email", authentication, isRole(RoleEnum.COMPANY), isEmailTaken, async (req: Request, res: Response) => {
+.post("/:email", authentication, isRole(RoleEnum.COMPANY), hasToPay(), isEmailTaken, async (req: Request, res: Response) => {
     const email = req.params.email
     const company_id = (await CompanyController.findByUserId(res.locals.user_id))!.id
 
@@ -40,7 +41,7 @@ export default Router()
 
     res.send(`The invitation email was sent to: ${email}`);
 })
-.delete("/:email", authentication, isRole(RoleEnum.COMPANY), async (req: Request, res: Response) => {
+.delete("/:email", authentication, isRole(RoleEnum.COMPANY),  hasToPay(), async (req: Request, res: Response) => {
     const email = req.params.email
 
     const employee = await EmployeeController.findByEmail(email)

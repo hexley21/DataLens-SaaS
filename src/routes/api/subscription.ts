@@ -14,9 +14,10 @@ export default Router()
     res.send(await SubscriptionController.findSubscriptionByCompanyUserIdFormatted(res.locals.user_id))
 })
 .patch("/:tier", authentication, isRole(RoleEnum.COMPANY), async (req: Request, res: Response) => {
-    if (!Object.values(TiersEnum).includes(req.params.tier)) throw createHttpError(400, "Invalid tier, see tier list on /api/list/tiers")
+    const tierKey = req.params.tier.toUpperCase()
+    
+    if (!Object.values(TiersEnum).includes(tierKey)) throw createHttpError(400, "Invalid tier, see tier list on /api/list/tiers")
 
-    await SubscriptionController.changeTier(res.locals.user_id, TiersEnum[req.params.tier as keyof typeof TiersEnum])
-
+    await SubscriptionController.changeTier(res.locals.user_id, TiersEnum[(tierKey as keyof typeof TiersEnum)])
     res.redirect("/api/subscription")
 })

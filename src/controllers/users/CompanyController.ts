@@ -74,13 +74,14 @@ export class CompanyController extends IController<CompanyEntity> {
             .getOne()
     }
 
-    public async getCompanyIdIndependent(user_id: string): Promise<string> {
-        return ((await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
-            .select("COALESCE(c.id, e.company_id)", "company_id")
+    public async getCompanyIndependent(user_id: string): Promise<CompanyEntity> {
+        return (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
+            .select("c2.*")
             .leftJoin(CompanyEntity, "c", "c.user_id = u.id")
             .leftJoin(EmployeeEntity, "e", "e.user_id = u.id")
+            .leftJoin(CompanyEntity, "c2", "c2.id = COALESCE(c.id, e.company_id)")
             .where("u.id = :user_id", { user_id: user_id })
-            .getRawOne()) as { company_id: string}).company_id;
+            .getRawOne()) as CompanyEntity
     }
 
 
