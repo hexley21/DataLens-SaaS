@@ -57,14 +57,15 @@ export class UserController extends IController<UserEntity> {
         if (!email || !password) return null
 
         const user = (await this.createTypedQueryBuilder<UserEntity>(UserEntity, "u")
-            .select("id, hash, salt")
+            .select()
             .where({ email: email })
-            .getRawOne() as { id: string, hash: string, salt: string });
+            .getOne())
+        
+        if (!user) throw createHttpError(404, "User not found.");
         
         const encripted = await this.encriptionManager.encryptPassword(password, user.salt);
         
-        if (user.hash === encripted) return user.id;
-        return null;;
+        return (user.hash === encripted) ? user.id : null;
     }
 
 
@@ -76,7 +77,7 @@ export class UserController extends IController<UserEntity> {
      * @returns A Promise that resolves with void on successful password update, or throws an error if any argument is missing or invalid.
      */
     public async updatePassword(user_id?: string, oldPassword?: string, newPassword?: string): Promise<void | never> {
-        if ((!oldPassword) || (!newPassword) || (!user_id)) throw new Error("Invalid Arguments");
+        if ((!oldPassword) || (!newPassword) || (!user_id)) throw createHttpError(400, "Invalid Arguments");
 
         const { old_hash, old_salt } = (await this.createQueryBuilder("u")
             .select("hash as old_hash, salt as old_salt")
@@ -85,7 +86,7 @@ export class UserController extends IController<UserEntity> {
 
         const encryptedOld = await this.encriptionManager.encryptPassword(oldPassword, old_salt);
         
-        if (encryptedOld != old_hash) throw Error("old password does not match");
+        if (encryptedOld != old_hash) throw createHttpError(400, "Old password does not match");
         await this.userRepository.changePassword(user_id, newPassword);
     }
 

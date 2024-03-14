@@ -4,10 +4,11 @@ import EmployeeController from "../../src/controllers/users/EmployeeController.j
 
 import clearDb from "../test-util/DbUtils.js";
 
-import EmployeeRepository from "../../src/repository/EmployeeRepository.js";
-import CompanyRepository from "../../src/repository/CompanyRepository.js";
-
 import BasicEmailManager from "../../src/managers/BasicEmailManager.js";
+
+import UserController from "../../src/controllers/users/UserController.js";
+
+import RegisterController from "../../src/controllers/RegisterController.js";
 
 
 const email = "coolemail@gmail.com";
@@ -27,12 +28,12 @@ beforeAll(async () => {
     jest.spyOn(BasicEmailManager, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }));
 });
 beforeEach(async () => {
-    company_uid = await CompanyRepository.registerCompany(email, companyName, industry, country, password);
-    const company_id = await CompanyRepository.activate(company_uid);
+    company_uid = await RegisterController.registerCompany(email, companyName, industry, country, password);
+    const company_id = await UserController.activateUser(company_uid);
     
-    employee_uid = await EmployeeRepository.addUser(employeeEmail, company_id);
+    employee_uid = await RegisterController.registerEmployee(employeeEmail, company_id);
 
-    await EmployeeRepository.activate(employee_uid);
+    await UserController.activateUser(employee_uid);
 })
 afterAll(async () => {
     await AppDataSource.destroy();

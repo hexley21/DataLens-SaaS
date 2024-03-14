@@ -43,7 +43,7 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
 
 
     /**
-     * @returns string of new generated user id or throws exception
+     * @returns user id of newly registered company
      */
     public async registerCompany(email?: string, company_name?: string, industry?: string, country?: string, password?: string): Promise<string | never> {
 
@@ -60,8 +60,10 @@ export class CompanyRepository extends IUserRepository<CompanyEntity> {
                 .insert()
                 .into(UserEntity)
                 .values({ email: email, role: RoleEnum.COMPANY, hash: hash, salt: salt })
-                .returning("id, email")
+                .returning("*")
                 .execute()).generatedMaps)[0]
+
+            console.log(newUser, "lel")
 
             await transaction.manager.createQueryBuilder()
                 .insert()

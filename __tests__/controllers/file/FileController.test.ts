@@ -1,19 +1,18 @@
+import clearDb from "../../test-util/DbUtils.js";
+
 import AppDataSource from "../../../src/data/AppDataSource.js";
 
 import BasicEmailManager from "../../../src/managers/BasicEmailManager.js";
 
-import RegisterController from "../../../src/controllers/RegisterController.js";
-import UserController from "../../../src/controllers/users/UserController.js";
-import CompanyController from "../../../src/controllers/users/CompanyController.js";
-
-
-import clearDb from "../../test-util/DbUtils.js";
-import FileController from "../../../src/controllers/files/FileController.js";
-import EmployeeController from "../../../src/controllers/users/EmployeeController.js";
 import EmployeeEntity from "../../../src/models/entities/users/EmployeeEntity.js";
 import CompanyEntity from "../../../src/models/entities/users/CompanyEntity.js";
-import SubscriptionController from "../../../src/controllers/subscriptions/SubscriptionController.js";
-import TiersEnum from "../../../src/models/entities/enum/TiersEnum.js";
+
+import RegisterController from "../../../src/controllers/RegisterController.js";
+import UserController from "../../../src/controllers/users/UserController.js";
+import EmployeeController from "../../../src/controllers/users/EmployeeController.js";
+import CompanyController from "../../../src/controllers/users/CompanyController.js";
+import FileController from "../../../src/controllers/files/FileController.js";
+
 
 const email = "test@test.com";
 const companyName = "Cool Company";
