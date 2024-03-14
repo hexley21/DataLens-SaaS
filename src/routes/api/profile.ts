@@ -9,13 +9,14 @@ import { QueryFailedError } from "typeorm";
 import { isActive } from "../../middlewares/active.js";
 import isRole from "../../middlewares/role.js";
 import RoleEnum from "../../models/entities/enum/RoleEnum.js";
+import { hasToPay } from "../../middlewares/billing.js";
 
 
 export default Router()
 .get("/", authenticate, isActive, async (req: Request, res: Response) => {
     res.send(await ProfileController.getProfile(res.locals.user_id))
 })
-.patch("/", authenticate, isRole(RoleEnum.COMPANY), async (req: Request, res: Response) => {
+.patch("/", authenticate, isRole(RoleEnum.COMPANY), hasToPay, async (req: Request, res: Response) => {
     const { email, company_name, industry, country } = req.query as {
         email?: string,
         company_name?: string,
