@@ -29,7 +29,7 @@ class SubscriptionController extends IController<RecordEntity> {
 
         if (subscription.tier_id === TiersEnum.FREE) tierUpdateParams.tier_start = new Date()
 
-        return await upgradeQuery.set(tierUpdateParams).execute()
+        return await upgradeQuery.set(tierUpdateParams).where("id = :subscription_id", { subscription_id: subscription_id}).execute()
     }
 
     public async getSubscriptionIdIndependent(user_id: string): Promise<string> {
