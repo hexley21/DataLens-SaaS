@@ -1,13 +1,13 @@
+import createHttpError from "http-errors";
+
 import clearDb from "../test-util/DbUtils.js";
 
 import AppDataSource from "../../src/data/AppDataSource.js";
 
+import RegisterController from "../../src/controllers/RegisterController.js";
 import UserController from "../../src/controllers/users/UserController.js";
 
 import BasicEmailManager from "../../src/managers/BasicEmailManager.js";
-import CompanyRepository from "../../src/repository/CompanyRepository.js";
-import RegisterController from "../../src/controllers/RegisterController.js";
-import createHttpError from "http-errors";
 
 
 const email = "coolemail@gmail.com";
@@ -20,13 +20,13 @@ let company_uid: string;
 
 
 beforeAll(async () => {
-    await AppDataSource.initialize();;
+    await AppDataSource.initialize();
 
     jest.spyOn(BasicEmailManager, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }));
 });
 beforeEach(async () => {
     company_uid = await RegisterController.registerCompany(email, companyName, industry, country, password);
-    await CompanyRepository.activate(company_uid);
+    await UserController.activateUser(company_uid);
 })
 afterAll(async () => {
     await AppDataSource.destroy();

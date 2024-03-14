@@ -41,7 +41,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-    await AppDataSource.destroy()
+    await AppDataSource.destroy();
 });
 
 afterEach(async () => {
@@ -49,79 +49,77 @@ afterEach(async () => {
 });
 
 // company 1 
-let company: CompanyEntity
+let company: CompanyEntity;
 
-let employee: EmployeeEntity
+let employee: EmployeeEntity;
 
 beforeEach(async () => {
     // init company 1
-    const comp_user_id = await RegisterController.registerCompany(email, companyName, industry, country, password)
-    await UserController.activateUser(comp_user_id)
+    const comp_user_id = await RegisterController.registerCompany(email, companyName, industry, country, password);
+    await UserController.activateUser(comp_user_id);
 
-    company = (await CompanyController.findByUserId(comp_user_id))!
+    company = (await CompanyController.findByUserId(comp_user_id))!;
 
     // init employee 1
-    const employee_user_id = await RegisterController.registerEmployee(employeeEmail, company.id)
-    employee = await EmployeeController.findByUserId(employee_user_id) 
+    const employee_user_id = await RegisterController.registerEmployee(employeeEmail, company.id);
+    employee = await EmployeeController.findByUserId(employee_user_id);
 })
 
 
 describe("invalid file insertion", () => {
 
     test("error on invalid file name", async () => {
-        await expect(FileController.insert(employee.company_id, employee.user_id, invalidFileName)).rejects.toThrow()
-    })
-
+        await expect(FileController.insert(employee.company_id, employee.user_id, invalidFileName)).rejects.toThrow();
+    });
     test("error on invalid user_id", async () => {
-        await expect(FileController.insert(employee.company_id, "employee.user_id", invalidFileName)).rejects.toThrow()
-    })
-
+        await expect(FileController.insert(employee.company_id, "employee.user_id", invalidFileName)).rejects.toThrow();
+    });
     test("error on invalid company_id", async () => {
-        await expect(FileController.insert("employee.company_id", employee.user_id, invalidFileName)).rejects.toThrow()
-    })
+        await expect(FileController.insert("employee.company_id", employee.user_id, invalidFileName)).rejects.toThrow();
+    });
 })
 
 
 describe("insert", () => {
 
     test("no duplicate files", async () => {
-        const file_id = await FileController.insert(company.id, employee.user_id, fileName)
-        const duplicateFileId = await FileController.insert(company.id, employee.user_id, fileName)
+        const file_id = await FileController.insert(company.id, employee.user_id, fileName);
+        const duplicateFileId = await FileController.insert(company.id, employee.user_id, fileName);
     
-        const file = await FileController.findAccessibleFiles(company.id, employee.user_id, employeeEmail, fileName)
+        const file = await FileController.findAccessibleFiles(company.id, employee.user_id, employeeEmail, fileName);
         
-        console.log(duplicateFileId)
-        console.log(file_id)
+        console.log(duplicateFileId);
+        console.log(file_id);
         
-        expect(file).toHaveLength(1)
-        expect(file_id).toBe(duplicateFileId)
-    })
+        expect(file).toHaveLength(1);
+        expect(file_id).toBe(duplicateFileId);
+    });
 
     test("company can insert too", async () => {
-        const newFileId = await FileController.insert(company.id, company.user_id, fileName)
+        const newFileId = await FileController.insert(company.id, company.user_id, fileName);
     
-        const duplicateFileId = await FileController.insert(company.id, company.user_id, fileName)
+        const duplicateFileId = await FileController.insert(company.id, company.user_id, fileName);
     
-        const file = await FileController.findAccessibleFiles(employee.company_id, employee.user_id, undefined, fileName)
+        const file = await FileController.findAccessibleFiles(employee.company_id, employee.user_id, undefined, fileName);
         
-        expect(file).toHaveLength(1)
-        expect(newFileId).toBe(duplicateFileId)
-    })
+        expect(file).toHaveLength(1);
+        expect(newFileId).toBe(duplicateFileId);
+    });
 
 })
 
 
 describe("delete", () => {
     test("files are being deleted", async () => {
-        await FileController.insert(employee.company_id, employee.user_id, fileName)
+        await FileController.insert(employee.company_id, employee.user_id, fileName);
     
-        let file = await FileController.findAccessibleFiles(employee.company_id, employee.user_id, employeeEmail, undefined)
+        let file = await FileController.findAccessibleFiles(employee.company_id, employee.user_id, employeeEmail, undefined);
     
-        expect(file).toHaveLength(1)
-        await FileController.delete(employee.user_id, fileName)
+        expect(file).toHaveLength(1);
+        await FileController.delete(employee.user_id, fileName);
     
-        file = await FileController.findAccessibleFiles(employee.company_id, employee.user_id, undefined, fileName)
+        file = await FileController.findAccessibleFiles(employee.company_id, employee.user_id, undefined, fileName);
     
-        expect(file).toHaveLength(0)
-    })
+        expect(file).toHaveLength(0);
+    });
 })

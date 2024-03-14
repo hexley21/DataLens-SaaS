@@ -40,7 +40,7 @@ jest.mock("fs/promises", () => {
 jest.spyOn(BasicEmailManager, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...")}));
 
 beforeAll(async () => {
-    await AppDataSource.initialize();;
+    await AppDataSource.initialize();
 });
 
 afterAll(async () => {
@@ -70,33 +70,33 @@ let file_id3: string;
 
 beforeEach(async () => {
     // init company 1
-    const comp_user_id = await RegisterController.registerCompany(email, companyName, industry, country, password)
-    await UserController.activateUser(comp_user_id)
+    const comp_user_id = await RegisterController.registerCompany(email, companyName, industry, country, password);
+    await UserController.activateUser(comp_user_id);
 
-    company = (await CompanyController.findByUserId(comp_user_id))!
-    await SubscriptionController.changeTier(company.user_id, TiersEnum.BASIC)
+    company = (await CompanyController.findByUserId(comp_user_id))!;
+    await SubscriptionController.changeTier(company.user_id, TiersEnum.BASIC);
 
     // init company 2
-    const comp_user_id2 = await RegisterController.registerCompany(email2, companyName, industry, country, password)
-    await UserController.activateUser(comp_user_id2)
+    const comp_user_id2 = await RegisterController.registerCompany(email2, companyName, industry, country, password);
+    await UserController.activateUser(comp_user_id2);
 
-    company2 = (await CompanyController.findByUserId(comp_user_id2))!
-    await SubscriptionController.changeTier(company2.user_id, TiersEnum.BASIC)
+    company2 = (await CompanyController.findByUserId(comp_user_id2))!;
+    await SubscriptionController.changeTier(company2.user_id, TiersEnum.BASIC);
 
     // init employee 1
-    const employee_user_id = await RegisterController.registerEmployee(employeeEmail, company.id)
-    employee = await EmployeeController.findByUserId(employee_user_id) 
-    file_id = (await FileController.insert(company.id, employee_user_id, fileName))!
+    const employee_user_id = await RegisterController.registerEmployee(employeeEmail, company.id);
+    employee = await EmployeeController.findByUserId(employee_user_id) ;
+    file_id = (await FileController.insert(company.id, employee_user_id, fileName))!;
 
     // init employee 2
-    const employee2_user_id = await RegisterController.registerEmployee(employeeEmail2, company!.id)
-    employee2 = await EmployeeController.findByUserId(employee2_user_id) 
-    file_id2 = (await FileController.insert(company.id, employee2_user_id, fileName))!
+    const employee2_user_id = await RegisterController.registerEmployee(employeeEmail2, company!.id);
+    employee2 = await EmployeeController.findByUserId(employee2_user_id) ;
+    file_id2 = (await FileController.insert(company.id, employee2_user_id, fileName))!;
 
     // init employee 3
-    const employee3_user_id = await RegisterController.registerEmployee(employeeEmail3, company2!.id)
-    employee3 = await EmployeeController.findByUserId(employee3_user_id) 
-    file_id3 = (await FileController.insert(company2.id, employee3_user_id, fileName))!
+    const employee3_user_id = await RegisterController.registerEmployee(employeeEmail3, company2!.id);
+    employee3 = await EmployeeController.findByUserId(employee3_user_id);
+    file_id3 = (await FileController.insert(company2.id, employee3_user_id, fileName))!;
 
 })
 

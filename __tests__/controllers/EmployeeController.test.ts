@@ -23,7 +23,7 @@ let employee_uid: string;
 let company_uid: string;
 
 beforeAll(async () => {
-    await AppDataSource.initialize();;
+    await AppDataSource.initialize();
 
     jest.spyOn(BasicEmailManager, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }));
 });
