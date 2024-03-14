@@ -15,6 +15,8 @@ import UserController from "../users/UserController.js";
 
 import AccessEntity from "../../models/entities/files/AccessEntity.js";
 import FileAccessController from "./FileAccessController.js";
+import CompanyEntity from "../../models/entities/users/CompanyEntity.js";
+import EmployeeEntity from "../../models/entities/users/EmployeeEntity.js";
 
 
 export class FileController extends IController<FileEntity> {
@@ -114,6 +116,22 @@ export class FileController extends IController<FileEntity> {
 
 
         return (await filesQuery.limit(page * parseInt(process.env.ITEMS_PER_PAGE!)).getRawMany() as { owner: string, name: string }[])
+    }
+
+
+    public async findFileAndCompanyByOwner(owner_user_id: string, name:string) {
+        return await AppDataSource.createQueryBuilder(FileEntity, "f")
+            .innerJoin(UserEntity, "u", "u.id = f.owner_user_id")
+            .leftJoin(CompanyEntity, "c", "c.user_id = u.id")
+            .leftJoin(EmployeeEntity, "e", "e.user_id = u.id")
+            .select("f.id as id")
+            .addSelect("f.owner_company_id as owner_company_id")
+            .addSelect("f.owner_user_id as owner_user_id")
+            .addSelect("f.name as name")
+            .addSelect("COALESCE(c.id, e.company_id) as company_id")
+            .where("u.id = :user_id", { user_id: owner_user_id })
+            .andWhere("f.name =:name", { name: name})
+            .getRawOne() as { id: string, owner_company_id: string, name: string, company_id: string}
     }
 
     public async findFilesOfOwner(owner_user_id: string, name: string) {

@@ -29,12 +29,11 @@ export default Router()
     res.send(`file ${name} was deleted`);
 })
 .get("/", authentication, isActive, async (req: Request, res: Response) => {
-
     const page = req.query.page ? parseInt(req.query.page as string) : 1
 
     const company_id = await CompanyController.getCompanyIdIndependent(res.locals.user_id)
 
-    let foundFiles = await FileController.findAccessibleFiles(company_id, res.locals.user_id, undefined, undefined, page)
+    let foundFiles = await FileController.findAccessibleFiles(company_id, res.locals.user_id, req.query.email as string, req.query.name as string, page)
 
     if (foundFiles.length != 1) {
         res.send(foundFiles)
@@ -50,13 +49,11 @@ export default Router()
     res.send(await FileAccessController.getFileAccess(res.locals.user_id, req.params.name))
 })
 .post("/access/:name", authentication, isActive, async (req: Request, res: Response,) => {
-    const company_id = await CompanyController.getCompanyIdIndependent(res.locals.user_id)
-    
-    const foundFile = await FileController.findFilesOfOwner(res.locals.user_id, req.params.name);
+    const foundFile = await FileController.findFileAndCompanyByOwner(res.locals.user_id, req.params.name);
 
     if (!foundFile) throw createHttpError(404, "File not found")
 
-    await FileAccessController.addAccess(foundFile.id, company_id, parseVisibleTo(req.query.visible_to as string | undefined))
+    await FileAccessController.addAccess(foundFile.id, foundFile.company_id, parseVisibleTo(req.query.visible_to as string | undefined))
 
     res.redirect(`/api/file/access/${req.params.name}`)
 })
