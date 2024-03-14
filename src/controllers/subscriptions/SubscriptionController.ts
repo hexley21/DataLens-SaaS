@@ -6,6 +6,7 @@ import RecordEntity from "../../models/entities/subscription/RecordEntity";
 import TierEntity from "../../models/entities/subscription/TierEntity";
 import CompanyEntity from "../../models/entities/users/CompanyEntity";
 import EmployeeEntity from "../../models/entities/users/EmployeeEntity";
+import { CompanyController } from "../users/CompanyController";
 
 class SubscriptionController extends IController<RecordEntity> {
 
@@ -15,39 +16,22 @@ class SubscriptionController extends IController<RecordEntity> {
 
 
     public async changeTier(user_id: string, tier: TiersEnum) {
-        const subscription_id = await this.getSubscriptionIdIndependent(user_id)
-         
-        const subscription = await this.getSubscriptionById(subscription_id)
+        const subscription = (await this.createTypedQueryBuilder<CompanyEntity>(CompanyEntity, "c")
+            .leftJoin(RecordEntity, "sr", "c.subscription_id = sr.id")
+            .select("sr.*")
+            .where("c.user_id =:user_id", { user_id: user_id})
+            .getRawOne()) as RecordEntity
 
+        
         if (subscription.tier_id === tier) throw createHttpError(409, "You can't re-subscribe ro your tier")
 
         const upgradeQuery = this.createQueryBuilder("sr")
             .update()
 
         const tierUpdateParams: { tier_id: TiersEnum, tier_start?: Date} = { tier_id: tier}
-
-
         if (subscription.tier_id === TiersEnum.FREE) tierUpdateParams.tier_start = new Date()
 
-        return await upgradeQuery.set(tierUpdateParams).where("id = :subscription_id", { subscription_id: subscription_id}).execute()
-    }
-
-    public async getSubscriptionIdIndependent(user_id: string): Promise<string> {
-        const companyQuery = this.createTypedQueryBuilder(CompanyEntity, "c")
-            .select("c.subscription_id", "subscription_id")
-            .where(`c.user_id = '${user_id}'`)
-            .getQuery()
-
-
-        const employeeQuery = this.createTypedQueryBuilder(CompanyEntity, "c")
-            .select("c.subscription_id", "subscription_id")
-            .innerJoin(EmployeeEntity, "e", "c.id = e.company_id")
-            .where(`e.user_id = '${user_id}'`)
-            .getQuery()
-
-        const res = (await AppDataSource.query(`${companyQuery} UNION  ${employeeQuery}`))[0] as { subscription_id: string }
-
-        return res.subscription_id
+        return await upgradeQuery.set(tierUpdateParams).where("id = :subscription_id", { subscription_id: subscription.id}).execute()
     }
 
     public async getSubscriptionByUser(user_id: string) {
