@@ -47,14 +47,12 @@ afterEach(async () => {
 
 describe("find", () => {
     test("finds employee by email", async () => {
-
         const employee = await EmployeeController.findByEmail(employeeEmail);
         expect(employee?.user_id).toEqual(employee_uid);
     })
 
     test("finds email by company user_id", async () => {
         const employee = await EmployeeController.findEmailsByCompanyUserId(company_uid);
-        console.log(employee);
         expect(employee?.length).toBe(1);
         expect(employee[0]).toBe(employeeEmail);
     })
