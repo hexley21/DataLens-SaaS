@@ -35,7 +35,6 @@ export default Router()
     const company = (await CompanyController.getCompanyIndependent(res.locals.user_id))
 
     let foundFiles = await FileController.findAccessibleFiles(company.id, res.locals.user_id, req.query.email as string, req.query.name as string, page)
-
     if (foundFiles.length != 1) {
         res.send(foundFiles)
         return;
