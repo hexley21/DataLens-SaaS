@@ -104,7 +104,7 @@ export class EmployeeRepository extends IUserRepository<EmployeeEntity> {
             .where({ id: user_id})
             .execute()
 
-        return employee.id
+        return employee.employee_id
     }
 
 
