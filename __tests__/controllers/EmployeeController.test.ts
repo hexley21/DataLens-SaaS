@@ -1,45 +1,60 @@
-// import AppDataSource from "../../src/data/AppDataSource.js";
+import AppDataSource from "../../src/data/AppDataSource.js";
 
-// import EmployeeController from "../../src/controllers/EmployeeController.js"
-// import clearDb from "../test-util/DbUtils.js";
-// import EmployeeRepository from "../../src/repository/EmployeeRepository.js";
-// import CompanyRepository from "../../src/repository/CompanyRepository.js";
-// import BasicEmailService from "../../src/services/BasicEmailService.js";
+import EmployeeController from "../../src/controllers/users/EmployeeController.js";
 
+import clearDb from "../test-util/DbUtils.js";
 
-// const password = "123";
-// const email = "test@test.com";
+import EmployeeRepository from "../../src/repository/EmployeeRepository.js";
+import CompanyRepository from "../../src/repository/CompanyRepository.js";
 
-// const country = "GB";
-// const industry = "FIN";
+import BasicEmailManager from "../../src/managers/BasicEmailManager.js";
 
 
-// beforeAll(async () => {
-//     await AppDataSource.initialize();
+const email = "coolemail@gmail.com";
+const companyName = "company name";
+const country = "GB";
+const industry = "FIN";
+const password = "123";
 
-//     jest.spyOn(BasicEmailService, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }))
-// });
+const employeeEmail = "test@test.com";
 
-// afterAll(async () => {
-//     await AppDataSource.destroy()
-// });
+let employee_uid: string;
+let company_uid: string;
 
-// afterEach(async () => {
-//     await clearDb()
-// });
+beforeAll(async () => {
+    await AppDataSource.initialize();;
 
-
-
-// it("finds employee by email", async () => {
-//     const company_user_id = await CompanyRepository.registerCompany("company@email.com", "company name", industry, country, password)
-//     const company_id = await CompanyRepository.activate(company_user_id)
+    jest.spyOn(BasicEmailManager, "sendEmail").mockImplementation(jest.fn(() => { console.log("email was sent...") }));
+});
+beforeEach(async () => {
+    company_uid = await CompanyRepository.registerCompany(email, companyName, industry, country, password);
+    const company_id = await CompanyRepository.activate(company_uid);
     
-//     const user_id = await EmployeeRepository.addUser(email, company_id)
+    employee_uid = await EmployeeRepository.addUser(employeeEmail, company_id);
 
-//     console.log(user_id);
-//     const employee_id = await EmployeeRepository.activate(user_id)
+    await EmployeeRepository.activate(employee_uid);
+})
+afterAll(async () => {
+    await AppDataSource.destroy();
+});
 
-//     const employee = await EmployeeController.findByEmail(email)
-    
-//     expect(employee?.id).toEqual(employee_id)
-// })
+afterEach(async () => {
+    await clearDb();
+});
+
+
+
+describe("find", () => {
+    test("finds employee by email", async () => {
+
+        const employee = await EmployeeController.findByEmail(employeeEmail);
+        expect(employee?.user_id).toEqual(employee_uid);
+    })
+
+    test("finds email by company user_id", async () => {
+        const employee = await EmployeeController.findEmailsByCompanyUserId(company_uid);
+        console.log(employee);
+        expect(employee?.length).toBe(1);
+        expect(employee[0]).toBe(employeeEmail);
+    })
+})
