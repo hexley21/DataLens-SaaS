@@ -58,7 +58,6 @@ export class FileController extends IController<FileEntity> {
         }
 
         if (!affected || affected == 0) throw createHttpError(404, "File not found")
-        
     }
 
     public async insert(owner_company_id: string, owner_user_id: string, name: string, allowed_users?: string[]): Promise<string | undefined> {
