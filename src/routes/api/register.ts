@@ -23,7 +23,7 @@ export default Router()
         await RegisterController.registerCompany(email, company_name, industry!, country!, password)
     }
     catch (e) {
-        if (e instanceof QueryFailedError) throw createHttpError(400, "Invalid arguments: this error occurs when email, industry or country is invalid, or when the company name is taken")
+        if (e instanceof QueryFailedError) throw createHttpError(400, "Invalid arguments.")
         throw createHttpError(500, (e as Error).message)
     }
 
