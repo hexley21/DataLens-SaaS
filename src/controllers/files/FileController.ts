@@ -27,6 +27,14 @@ export class FileController extends IController<FileEntity> {
         this.fileManager = BasicFileManager;
     }
 
+
+    /**
+     * Deletes file according to owner user_id and name
+     * @param owner_user_id - The id of the file owner.
+     * @param name - The name of the file to be deleted.
+     * @returns A Promise that resolves when a file is being deleted from the database and a disk
+     * @throws {HttpError} - Throws a 404 HttpError if the file does not exist or 500 on other errors
+     */
     public async delete(owner_user_id: string, name: string): Promise<void | never> {
         let affected
 
@@ -58,9 +66,17 @@ export class FileController extends IController<FileEntity> {
         }
 
         if (!affected || affected == 0) throw createHttpError(404, "File not found")
-        
     }
 
+
+    /**
+     * Inserts a new file record into the database, optionally setting access for specific users or everyone.
+     * @param owner_company_id - The ID of the company that owns the file.
+     * @param owner_user_id - The ID of the user that owns the file.
+     * @param name - The name of the file.
+     * @param allowed_users - An optional array of user emails permitted to access the file.
+     * @returns A Promise resolved with the new file's ID on success, or undefined on failure.
+     */
     public async insert(owner_company_id: string, owner_user_id: string, name: string, allowed_users?: string[]): Promise<string | undefined> {
         const transaction = AppDataSource.createQueryRunner()
 
@@ -80,7 +96,7 @@ export class FileController extends IController<FileEntity> {
                 await FileAccessController.addAccess(newFile.id, owner_company_id, allowed_users, transaction.manager.createQueryBuilder(AccessEntity, "fa"))
             }
             else {
-                FileAccessController.accessEveryone(newFile.id, transaction.manager.createQueryBuilder(AccessEntity, "fa"))
+                await FileAccessController.accessEveryone(newFile.id, transaction.manager.createQueryBuilder(AccessEntity, "fa"))
             }
 
             await transaction.commitTransaction()
@@ -96,6 +112,15 @@ export class FileController extends IController<FileEntity> {
     }
 
 
+    /**
+     * Retrieves a list of files according to user's rights of access.
+     * @param company_id - The ID of the company within which file access is being checked.
+     * @param user_id - The ID of the user whose file access is to be determined.
+     * @param email - Optional. The email of the file owner to filter the files.
+     * @param name - Optional. The name of the file to filter the search.
+     * @param page - The page number for pagination.
+     * @returns A Promise resolved with an array of objects containing the owner's email and file name.
+     */
     public async findAccessibleFiles(company_id: string, user_id: string, email?: string, name?: string, page = 1) {
         const filesQuery = this.createQueryBuilder("f")
             .leftJoin(UserEntity, "u", "u.id = f.owner_user_id")
@@ -119,6 +144,12 @@ export class FileController extends IController<FileEntity> {
     }
 
 
+    /**
+     * Finds a file and its associated company by the file owner's user ID and the file's name.
+     * @param owner_user_id - The ID of the user who owns the file.
+     * @param name - The name of the file to find.
+     * @returns A Promise resolved with an object containing the file's ID, owner company ID, owner user ID, file name, and company ID.
+     */
     public async findFileAndCompanyByOwner(owner_user_id: string, name:string) {
         return await AppDataSource.createQueryBuilder(FileEntity, "f")
             .innerJoin(UserEntity, "u", "u.id = f.owner_user_id")
@@ -134,6 +165,13 @@ export class FileController extends IController<FileEntity> {
             .getRawOne() as { id: string, owner_company_id: string, name: string, company_id: string}
     }
 
+
+    /**
+     * Retrieves a single file owned by a specified user and matching a given name.
+     * @param owner_user_id - The ID of the user who owns the file.
+     * @param name - The name of the file to retrieve.
+     * @returns A Promise resolved with the file entity if found, otherwise null.
+     */
     public async findFilesOfOwner(owner_user_id: string, name: string) {
         return this.createQueryBuilder("f")
             .select()

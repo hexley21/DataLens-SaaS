@@ -20,7 +20,7 @@ import { hasToPay } from "../../middlewares/billing.js";
 
 export default Router()
 .get("/", authentication, isRole(RoleEnum.COMPANY),  hasToPay(), async (req: Request, res: Response) => {
-    res.send(await EmployeeController.findEmailsByCompanyUserId(res.locals.user_id))
+    res.send(await EmployeeController.findEmailsByCompanyUserId(res.locals.user_id, parseInt(req.query.page as string)))
 })
 .post("/:email", authentication, isRole(RoleEnum.COMPANY), hasToPay(), isEmailTaken, async (req: Request, res: Response) => {
     const email = req.params.email

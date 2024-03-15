@@ -35,7 +35,6 @@ export default Router()
     const company = (await CompanyController.getCompanyIndependent(res.locals.user_id))
 
     let foundFiles = await FileController.findAccessibleFiles(company.id, res.locals.user_id, req.query.email as string, req.query.name as string, page)
-
     if (foundFiles.length != 1) {
         res.send(foundFiles)
         return;
@@ -44,10 +43,10 @@ export default Router()
     res.download(`${uploadsFolder}/${foundFiles[0].owner}/${foundFiles[0].name}`, foundFiles[0].name)
 })
 .get("/access",  authentication, isActive, hasToPay(), async (req: Request, res: Response) => {
-    res.send(await FileAccessController.getFileAccess(res.locals.user_id))
+    res.send(await FileAccessController.getFileAccess(res.locals.user_id, undefined, parseInt(req.query.page as string)))
 })
 .get("/access/:name", authentication, isActive, hasToPay(),async (req: Request, res: Response) => {
-    res.send(await FileAccessController.getFileAccess(res.locals.user_id, req.params.name))
+    res.send(await FileAccessController.getFileAccess(res.locals.user_id, req.params.name, parseInt(req.query.page as string)))
 })
 .post("/access/:name", authentication, isActive, hasToPay(), async (req: Request, res: Response,) => {
     const foundFile = await FileController.findFileAndCompanyByOwner(res.locals.user_id, req.params.name);
