@@ -1,0 +1,64 @@
+version: '3.8'
+services:
+  # mail:
+  #   image: ghcr.io/docker-mailserver/docker-mailserver:latest
+  #   container_name: datalens-mail
+  #   hostname: datalens.saas.com
+  #   env_file: $PWD/mailserver.env
+  #   ports:
+  #     - "25:25"
+  #     - "465:465"
+  #     - "587:587"
+  #     - "993:993"
+  #   volumes:
+  #     - ./docker-data/mailserver/dms/mail-data/:/var/mail/
+  #     - ./docker-data/mailserver/dms/mail-state/:/var/mail-state/
+  #     - ./docker-data/mailserver/dms/mail-logs/:/var/log/mail/
+  #     - ./docker-data/mailserver/dms/config/:/tmp/docker-mailserver/
+  #     - /etc/localtime:/etc/localtime:ro
+  #   environment:
+  #     - ENABLE_SPAMASSASSIN=1
+  #     - SPAMASSASSIN_SPAM_TO_INBOX=1
+  #     - ENABLE_CLAMAV=1
+  #     - ENABLE_FAIL2BAN=1
+  #     - ENABLE_POSTGREY=1
+  #     - ENABLE_SASLAUTHD=0
+  #     - ONE_DIR=1
+  #     - DMS_DEBUG=0
+  #   cap_add:
+  #     - NET_ADMIN
+  #     - SYS_PTRACE
+  #   restart: always
+  db:
+    container_name: datalens-db
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: datalens
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      PGUSER: "postgres"
+    volumes:
+      - ./data-design.sql:/docker-entrypoint-initdb.d/data-design.sql
+      - ./docker-data/postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+    restart: always
+  app:
+    container_name: datalens-node
+    depends_on:
+      db:
+        condition: service_healthy
+    build: .
+    environment:
+      NODE_ENV: production
+    ports:
+      - 8080:8080
+    volumes:
+      - ./uploads:/usr/src/app/uploads
+    restart: always
