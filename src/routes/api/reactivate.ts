@@ -7,6 +7,6 @@ import { isActiveByEmail } from "../../middlewares/active.js";
 
 export default Router()
 .post("/:email", isActiveByEmail(false),  async (req: Request, res: Response) => {
-        await RegisterController.sendActivation(req.params.email)
-        res.send("Confirmation email was resent")
+        await RegisterController.sendActivation(req.params.email);
+        res.send("Confirmation email was resent");
 })

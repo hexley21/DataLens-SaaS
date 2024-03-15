@@ -1,14 +1,14 @@
-import AppDataSource from "../../src/data/AppDataSource.js";
+import AppDataSource from "../../../src/data/AppDataSource.js";
 
-import EmployeeController from "../../src/controllers/users/EmployeeController.js";
+import EmployeeController from "../../../src/controllers/users/EmployeeController.js";
 
-import clearDb from "../test-util/DbUtils.js";
+import clearDb from "../../test-util/DbUtils.js";
 
-import BasicEmailManager from "../../src/managers/BasicEmailManager.js";
+import BasicEmailManager from "../../../src/managers/BasicEmailManager.js";
 
-import UserController from "../../src/controllers/users/UserController.js";
+import UserController from "../../../src/controllers/users/UserController.js";
 
-import RegisterController from "../../src/controllers/RegisterController.js";
+import RegisterController from "../../../src/controllers/RegisterController.js";
 
 
 const email = "coolemail@gmail.com";

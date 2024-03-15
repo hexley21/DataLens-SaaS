@@ -1,13 +1,13 @@
 import createHttpError from "http-errors";
 
-import clearDb from "../test-util/DbUtils.js";
+import clearDb from "../../test-util/DbUtils.js";
 
-import AppDataSource from "../../src/data/AppDataSource.js";
+import AppDataSource from "../../../src/data/AppDataSource.js";
 
-import RegisterController from "../../src/controllers/RegisterController.js";
-import UserController from "../../src/controllers/users/UserController.js";
+import RegisterController from "../../../src/controllers/RegisterController.js";
+import UserController from "../../../src/controllers/users/UserController.js";
 
-import BasicEmailManager from "../../src/managers/BasicEmailManager.js";
+import BasicEmailManager from "../../../src/managers/BasicEmailManager.js";
 
 
 const email = "coolemail@gmail.com";
